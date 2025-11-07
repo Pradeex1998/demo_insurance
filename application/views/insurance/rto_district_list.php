@@ -1,0 +1,304 @@
+<!-- Shared plugin CSS moved to layout.php -->
+
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2 style="display: inline-block;">&nbsp;&nbsp; <?php echo $title; ?></h2>
+                <button type="button" data-toggle="modal" data-target="#rtoModal" class="btn bg-green waves-effect pull-right addBtn"><i class="material-icons">add</i> Add</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="body table-responsive">
+                <table id="datatable" class="table table-bordered table-striped" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">S.No</th>
+                            <th style="text-align: center;">District</th>
+                            <th style="text-align: center;">State</th>
+                            <th style="text-align: center;">Created By</th>
+                            <th style="text-align: center;">Created At</th>
+                            <th style="text-align: center;">Status</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="rtoModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="rtoForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add District</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <div class="modal-body">    
+                        <div class="row clearfix">  
+                            <div class="col-sm-12">
+                            <input type="hidden" name="id" id="id" class="form-control">
+                            <div class="form-group form-float">
+                                <div class="form-line">
+                                <input type="text" name="name" id="name" class="form-control" required maxlength="128">
+                                <label class="form-label required">District Name</label>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix" style="margin-top: 15px;">
+                            <div class="col-sm-12">
+                            <div class="form-group form-float">
+                                <div class="form-line">
+                                <select name="state_id" id="state_id" class="form-control show-tick" required>
+                                    <option value="">- Select State -</option>
+                                    <?php if(isset($states) && is_array($states)) { foreach($states as $s) { ?>
+                                        <option value="<?= $s['id']; ?>"><?= $s['name']; ?></option>
+                                    <?php } } ?>
+                                </select>
+                                <label class="form-label required">State</label>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix" style="margin-top: 15px;">
+                            <div class="col-sm-12">
+                            <div class="form-group form-float">
+                                <div class="form-line">
+                                <select name="status" id="status" class="form-control show-tick" required>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success waves-effect">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+    $(document).ready(function() {
+
+        // $('#branch_id, #form_10be').select2({
+        //   placeholder: "- Select Branch -"
+        // });
+
+        datatable('datatable');
+
+        $('#search').on('click', function() {
+            table.ajax.reload();
+        });
+
+        $('#clear').on('click', function() {
+            window.location.reload();
+        });
+
+        $('body').on('keyup click', '.search-input-text', function() {
+            var i = $(this).attr('data-column');
+            var v = $(this).val();
+            table.columns(i).search(v).draw();
+        });
+
+        $('.search-input-select').on('change', function() {
+            var i = $(this).attr('data-column');
+            var v = $(this).val();
+            table.columns(i).search(v).draw();
+        });
+    });
+
+    function datatable(tableId) {
+        var table = $('#'+ tableId).DataTable({
+            "autoWidth": false,
+            "serverSide": true,
+            "ordering": true,
+            "scrollX": true,
+            "scrollCollapse": true,
+            "order": [
+                [1, 'asc']
+            ],
+            "columnDefs": [{
+                    targets: [0, 4, 5, 6],
+                    className: 'text-center'
+                },
+                {
+                    targets: '_all',
+                    className: 'align-middle text-nowrap'
+                }
+            ],
+            "aLengthMenu": [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "All"]
+            ],
+            "ajax": {
+                "url": "<?= base_url('admin/master/district_datatable_json') ?>",
+                "type": "POST",
+            },
+        });
+    }
+
+   
+
+    //---------------------------------------------------
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Reset the form when the modal is opened
+            // $('.addBtn').on('click', function() {
+            //     $('#branchForm')[0].reset(); // Reset the form fields
+            //     $('#status').val('').change(); // Reset the dropdown
+            // });
+
+            $('#rtoForm').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "<?= base_url('admin/master/submit_district') ?>",
+                    type: "POST",
+                    dataType: 'json',
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        $('#rtoModal').modal('hide');
+                        $('#datatable').DataTable().ajax.reload(null, false);
+
+                        if (res && res.status === '1') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message || 'District saved successfully!',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: (res && res.message) ? res.message : 'Failed to save District. Please try again.',
+                                timer: 2500,
+                                showConfirmButton: false
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to save District. Please try again.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            });
+
+            // Handle delete button click
+            $(document).on('click', '.deleteBtn', function() {
+                const id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post("<?= base_url('admin/master/delete_branch') ?>", { id }, function() {
+                            $('#datatable').DataTable().ajax.reload(null, false);
+
+                            // Show success alert
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Branch has been deleted.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }).fail(function() {
+                            // Show error alert
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to delete branch. Please try again.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        });
+                    }
+                });
+            });
+
+            // Edit button click handler
+            $(document).on('click', '.editBtn', function() {
+                const id = $(this).data('id');
+                $.ajax({
+                    url: "<?= base_url('admin/master/get_district_byid') ?>/" + id,
+                    type: "GET",
+                    dataType: "json", // Ensures automatic parsing
+                    success: function(response) {
+                        if (response.status === "1" && Array.isArray(response.data) && response.data.length > 0) {
+                            const district = response.data[0];
+                            $('#id').val(district.id);
+                            $('#name').val(district.name);
+                            $('#state_id').val(district.state_id).change();
+                            $('#status').val(district.status).change();
+                            $('#rtoModal .modal-title').text('Edit District');
+                            $('#rtoForm button[type="submit"]').text('Update');
+                            $('#rtoModal').modal('show');
+                            $('.form-line').addClass('focused');
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Invalid District data received.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to fetch District details. Please try again.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            });
+
+
+            // Reset modal for Add RTO
+            $('.addBtn').on('click', function() {
+                $('#id').val('');
+                $('#rtoForm')[0].reset();
+                $('#rtoModal .modal-title').text('Add District');
+                $('#rtoForm button[type="submit"]').text('Save');
+                $('.form-line').removeClass('focused');
+            });
+        });
+    </script>
+
+    <script>
+    function add_agency() {
+        window.location.href = "<?php echo base_url() . 'admin/loginid/loginid_form/a'; ?>";
+    }
+    </script>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title><?=isset($title)?$title. ' - Ongarakudil Mobile App':'CI Material Admin' ?></title>
+    <!-- Favicon-->
+    <link rel="icon" href="<?= base_url() ?>public/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+    <!-- Bootstrap Core Css -->
+    <link href="<?= base_url() ?>public/plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!-- Waves Effect Css -->
+    <link href="<?= base_url() ?>public/plugins/node-waves/waves.css" rel="stylesheet" />
+    <!-- Animation Css -->
+    <link href="<?= base_url() ?>public/plugins/animate-css/animate.css" rel="stylesheet" />
+    <!-- Custom Css -->
+    <link href="<?= base_url() ?>public/css/style.css" rel="stylesheet">
+</head>
+
+<body class="login-page">
+    <div class="login-box">
+        <div class="logo">
+            <a href="javascript:void(0);">Delete Account</a>
+        </div>
+        
+        <?php if($this->session->flashdata('warning')): ?>
+             <div class="alert alert-warning">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+              <?=$this->session->flashdata('warning')?>
+            </div>
+        <?php endif; ?>
+        <?php if($this->session->flashdata('success')): ?>
+              <div class="alert alert-success">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+                <?=$this->session->flashdata('success')?>
+              </div>
+        <?php endif; ?>
+        <div class="card">
+            <div class="body">
+                <?php echo form_open(base_url('delete_account/delete_acc'), 'class="login-form" '); ?>
+                    <div class="msg">Enter OTP</div>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="material-icons">phone</i>
+                        </span>
+                        <div class="form-line">
+                             <input type="text" maxlength="15" class="form-control" name="mob" value="<?php echo $mobile_no; ?>"  readonly>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="material-icons">tag</i>
+                        </span>
+                        
+                        <div class="form-line">
+                            <input type="hidden" maxlength="15" class="form-control" name="mobile_no" value="<?php echo $mobile_no; ?>" placeholder="OTP" required>
+                            <input type="text" maxlength="4" class="form-control" name="code" placeholder="OTP" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-6"> <input type="button" name="cancel" id="cancel" class="btn btn-block btn-warning waves-effect" value="cancel"></div>
+                        <div class="col-xs-6">
+                            <input type="submit" name="submit" id="submit" class="btn btn-block btn-success waves-effect" value="Submit">
+                            
+                        </div>
+                        
+                    </div>
+                <?php echo form_close(); ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jquery Core Js -->
+    <script src="<?= base_url() ?>public/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap Core Js -->
+    <script src="<?= base_url() ?>public/plugins/bootstrap/js/bootstrap.js"></script>
+    <!-- Waves Effect Plugin Js -->
+    <script src="<?= base_url() ?>public/plugins/node-waves/waves.js"></script>
+    <!-- Validation Plugin Js -->
+    <script src="<?= base_url() ?>public/plugins/jquery-validation/jquery.validate.js"></script>
+    <!-- Custom Js -->
+    <script src="<?= base_url() ?>public/js/admin.js"></script>
+    <script src="<?= base_url() ?>public/js/pages/examples/sign-in.js"></script>
+</body>
+
+</html>
+<script type="text/javascript">
+   $(document).ready(function() {
+    $('#cancel').on("click", function() {
+        window.location.href = "<?php echo base_url(); ?>delete_account/check_user";
+    });
+   });
+</script>

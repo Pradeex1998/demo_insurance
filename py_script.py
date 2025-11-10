@@ -61,7 +61,7 @@ COMPANY_PROMPTS = {
         "- product_type: Fixed string 'CommercialVehiclePackagePolicy'.\n"
         "- policy_number: The value after 'PolicyNumber' (look for the value in quotes like 'OG-26-9906-1812-00003139').\n"
         "- type: The value labeled 'FuelType'. Format as a string (e.g., 'DIESEL').\n"
-        "- registration_number: The value labeled 'Registration No.'.\n"
+        "- registration_number: The value labeled 'Registration No.'. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: Extract the GVW (Gross Vehicle Weight). When the format is '1478/2805' or similar, extract the second number (e.g., 2805). Return as a number.\n"
         "- year_of_manufacture: The numeric value labeled 'Mfg year'.\n"
         "- make_model: A single string combining the values from 'Make' and 'Model' fields, separated by a space.\n"
@@ -89,7 +89,7 @@ COMPANY_PROMPTS = {
         "- product_type: Fixed string 'CommercialVehiclePackagePolicy'.\n"
         "- policy_number: The value after 'PolicyNumber' (look for the value in quotes like 'OG-26-9906-1812-00003139').\n"
         "- type: The value labeled 'FuelType'. Format as a string (e.g., 'DIESEL').\n"
-        "- registration_number: The value labeled 'Registration No.'.\n"
+        "- registration_number: The value labeled 'Registration No.'. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: Fixed integer 0, as it is not present in this document type.\n"
         "- year_of_manufacture: The numeric value labeled 'Mfg year'.\n"
         "- make_model: A single string combining the values from 'Make' and 'Model' fields, separated by a space.\n"
@@ -115,7 +115,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from policy description\n"
-        "- registration_number: vehicle registration number only\n"
+        "- registration_number: vehicle registration number only; remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990')\n"
         "- weight: numeric value after 'Gross Vehicle Weight (Kgs)', remove commas and spaces\n"
         "- year_of_manufacture: vehicle manufacturing year\n"
         "- make_model: combine 'Make' and 'Model'\n"
@@ -142,7 +142,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from policy description\n"
-        "- registration_number: vehicle registration number only\n"
+        "- registration_number: vehicle registration number only; remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990')\n"
         "- weight: value labeled as 'Vehicle Weight' or 'GVW'\n"
         "- year_of_manufacture: vehicle manufacturing year\n"
         "- make_model: combine 'Make' and 'Model'\n"
@@ -169,7 +169,7 @@ COMPANY_PROMPTS = {
         "- product_type: use the product header like 'Passenger Carrying Vehicles Package Policy'\n"
         "- policy_number: the text after 'Policy No. :' or 'Policy No.' (e.g., '3004/407871828/00/B00')\n"
         "- type: the vehicle usage or class, prefer 'Vehicle Usage' if present, else 'Vehicle SubClass' or policy header\n"
-        "- registration_number: the text after 'Vehicle Registration No.' or 'Registration No.'\n"
+        "- registration_number: the text after 'Vehicle Registration No.' or 'Registration No.'. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: numeric GVW if present; if missing in document, use null\n"
         "- year_of_manufacture: from 'Mfg Yr' or the 'Mfg Yr' column; if not present, use the registration year\n"
         "- make_model: combine 'Vehicle Make' and 'Model' (e.g., 'TATA MOTORS LP 712 STARBUS PRIME')\n"
@@ -196,7 +196,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from product header or policy description\n"
-        "- registration_number: vehicle registration number only, not chassis number\n"
+        "- registration_number: vehicle registration number only, not chassis number. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: value labeled as 'Vehicle Weight' or 'GVW'\n"
         "- year_of_manufacture: vehicle manufacturing year\n"
         "- make_model: combine 'Make' and 'Model' from vehicle details\n"
@@ -223,7 +223,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from product header or policy description\n"
-        "- registration_number: vehicle registration number only, not chassis number\n"
+        "- registration_number: vehicle registration number only, not chassis number. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: value labeled as 'Vehicle Weight'\n"
         "- year_of_manufacture: vehicle manufacturing year\n"
         "- make_model: combine 'Make' and 'Model' from vehicle details\n"
@@ -250,7 +250,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from product header or policy description\n"
-        "- registration_number: vehicle registration number only (e.g., KA51AB1234, MH12DE1433), not chassis number\n"
+        "- registration_number: vehicle registration number only, not chassis number. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: value labeled as 'Gross Vehicle Weight' (include units if available, e.g., '2995 Kg')\n"
         "- year_of_manufacture: vehicle manufacturing year\n"
         "- make_model: combine 'Make' and 'Model' from vehicle details\n"
@@ -277,7 +277,7 @@ COMPANY_PROMPTS = {
         "- product_type: insurance product name (e.g., 'MOTOR COMMERCIAL VEHICLE (LIABILITY ONLY POLICY)')\n"
         "- policy_number: text after 'Policy No.'\n"
         "- type: vehicle type from product header (e.g., 'PCCV-3 wheelers-carrying passengers')\n"
-        "- registration_number: text after 'REGISTRATION', formatted as 'TN - 10 - BC - 5496'\n"
+        "- registration_number: text after 'REGISTRATION'. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: null (not available in Shriram format)\n"
         "- year_of_manufacture: vehicle details (e.g., '2007')\n"
         "- make_model: combine 'Make' and 'Model' from vehicle details\n"
@@ -298,10 +298,10 @@ COMPANY_PROMPTS = {
     "UNITED INDIA INSURANCE COMPANY LIMITED": (
         "Extract the following fields from the insurance document. "
         "Be very precise. Use null for missing values:\n"
-        "- date_of_issue: text after 'Date of Issue:' or 'Receipt Date:'\n"
+        "- date_of_issue: text after 'Date of Issue:' or 'Receipt Date:'\n" 
         "- insured_name: text after 'Name of the Insured'\n"
         "- policy_number: text after 'Policy No.'\n"
-        "- registration_number: text after 'Registration Number' or 'Regn. No.'\n"
+        "- registration_number: text after 'Registration Number' or 'Regn. No.'. Remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990').\n"
         "- weight: value after 'Gross Vehicle' or 'GVW'\n"
         "- year_of_manufacture: vehicle details\n"
         "- make_model: combine 'Make' and 'Model'\n"
@@ -340,12 +340,10 @@ def call_gemini(prompt, retries=7, delay=10):
             return response.text
         except Exception as e:
             if "503" in str(e):
-                # Use stderr for logging, not stdout
                 sys.stderr.write(f"Model overloaded. Retrying in {delay} seconds... ({attempt+1}/{retries})\n")
                 time.sleep(delay)
             else:
                 raise e
-    # Return JSON string, not dict
     return json.dumps({"status": "error", "message": "Model unavailable after retries."})
 
 
@@ -404,6 +402,8 @@ def process_pdf(pdf_path):
         else:
             prompt = (
                 "Extract the following fields from the insurance document below. "
+                "Rules: For 'registration_number', remove all spaces, dashes, and special characters and uppercase the result (e.g., 'TN31E9990'). "
+                "For numeric fields, remove commas. "
                 "Return the result as a JSON object with these keys (use null if not found):\n"
                 f"{FIELDS}\n\nDocument:\n{trimmed_text}"
             )

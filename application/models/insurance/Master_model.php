@@ -79,6 +79,45 @@
 		}
 	}
 
+	// =====================
+	// Staff Master
+	public function save_staff($data) {
+		$now = date('Y-m-d H:i:s');
+		if (isset($data['id']) && !empty($data['id'])) {
+			$data['updated_by'] = $this->session->userdata('admin_id');
+			$data['updated_at'] = $now;
+			$this->db->where('id', $data['id']);
+			$this->db->update('ins_staff', $data);
+			return $data['id'];
+		} else {
+			unset($data['id']);
+			$data['created_by'] = $this->session->userdata('admin_id');
+			if (!isset($data['created_at']) || empty($data['created_at'])) {
+				$data['created_at'] = $now;
+			}
+			$this->db->insert('ins_staff', $data);
+			return $this->db->insert_id();
+		}
+	}
+
+	public function get_staff($id = null) {
+		if ($id) {
+			$this->db->where('id', $id);
+		}
+		$query = $this->db->get('ins_staff');
+		return $query->result_array();
+	}
+
+	public function active_staff_list() {
+		$this->db->select('id, name, status');
+		$this->db->from('ins_staff');
+		$this->db->where('status', 'active');
+		$this->db->order_by('name', 'asc');
+		$query = $this->db->get();
+		if (!$query) { return array(); }
+		return $query->result_array();
+	}
+
 	public function get_company($id = null) {
 		if ($id) {
 			$this->db->where('id', $id);

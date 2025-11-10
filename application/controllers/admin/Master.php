@@ -275,6 +275,129 @@
 			$this->load->view('layout',$data);
 		}
 
+		// =====================
+		// Staff Master: start
+		public function staff_list(){
+			$data['title'] = 'Staff List';
+			$data['view'] = 'insurance/staff_list';
+			$this->load->view('layout',$data);
+		}
+
+		public function get_staff_byid($id) {
+			$staff = $this->master_model->get_staff($id);
+			if ($staff && count($staff) > 0) {
+				echo json_encode(['status' => '1', 'data' => $staff]);
+			} else {
+				echo json_encode(['status' => '0', 'data' => []]);
+			}
+		}
+
+		public function submit_staff() {
+			$postdata = array();
+			$column_names = $this->common_model->get_column_names('ins_staff');
+			$column_names = array_diff($column_names, ['id']);
+
+			foreach ($_POST as $key => $val) {
+				if (in_array($key, $column_names) || $key === 'id') {
+					$postdata[$key] = $this->input->post($key);
+				}
+			}
+
+			// minimal validation
+			if (empty($postdata['name']) || empty($postdata['status'])) {
+				echo json_encode(['status' => '0', 'message' => 'Name and Status are required.']);
+				return;
+			}
+
+			$recordid = $this->master_model->save_staff($postdata);
+
+			$response = array();
+			if ($recordid) {
+				$response['status'] = '1';
+				$response['message'] = 'Staff saved successfully.';
+			} else {
+				$response['status'] = '0';
+				$response['message'] = 'Save failed.';
+			}
+
+			$this->session->set_userdata('message', $response['message']);
+			echo json_encode($response);
+		}
+
+		public function staff_datatable_json() {
+			$requestData = $_POST;
+			$draw = $requestData['draw'];
+
+			$columns = array(
+				0 => 'isf.id',
+				1 => 'isf.name',
+				2 => 'isf.status',
+				3 => 'cu1.name',
+				4 => 'cu2.name',
+				5 => 'isf.created_at',
+				6 => 'isf.updated_at',
+			);
+
+			$limit = $requestData['length'];
+			$start = $requestData['start'];
+			$order_column_index = $requestData['order'][0]['column'];
+			$order = $columns[$order_column_index];
+			$dir = $requestData['order'][0]['dir'];
+			$search = $requestData['search']['value'];
+
+			$sql = "SELECT isf.*,
+					DATE_FORMAT(isf.created_at, '%d/%m/%Y %h:%i') AS formated_created_at,
+					DATE_FORMAT(isf.updated_at, '%d/%m/%Y %h:%i') AS formated_updated_at,
+					cu1.name AS created_by_name,
+					cu2.name AS updated_by_name
+				FROM ins_staff isf
+				LEFT JOIN ci_users cu1 ON isf.created_by = cu1.id
+				LEFT JOIN ci_users cu2 ON isf.updated_by = cu2.id
+				WHERE 1 = 1";
+
+			if (!empty($search)) {
+				$sql .= " AND (isf.id LIKE '%$search%'
+					OR isf.name LIKE '%$search%'
+					OR isf.status LIKE '%$search%'
+					OR cu1.name LIKE '%$search%'
+					OR cu2.name LIKE '%$search%'
+					OR DATE_FORMAT(isf.created_at, '%d/%m/%Y %h:%i') LIKE '%$search%'
+					OR DATE_FORMAT(isf.updated_at, '%d/%m/%Y %h:%i') LIKE '%$search%')";
+			}
+
+			$totalFiltered = $this->db->query($sql)->num_rows();
+
+			$sql .= " ORDER BY $order $dir";
+			if ($limit != -1) {
+				$sql .= " LIMIT $start, $limit";
+			}
+			$query = $this->db->query($sql);
+			$data = [];
+			$index = $start + 1;
+
+			foreach ($query->result() as $row) {
+				$statusHtml = '<span style="color:' . ($row->status === 'active' ? '#228B22' : ($row->status === 'inactive' ? 'orange' : 'red')) . '; font-weight:bold;">' . ucfirst($row->status) . '</span>';
+				$data[] = [
+					$index++,
+					$row->name,
+					$statusHtml,
+					$row->created_by_name,
+					$row->formated_created_at,
+					$row->updated_by_name,
+					$row->formated_updated_at,
+					'<button class="btn btn-primary btn-sm editBtn" data-id="'.$row->id.'"><i class="material-icons">edit</i></button>'
+				];
+			}
+
+			echo json_encode([
+				"draw" => $draw,
+				"recordsTotal" => $this->db->count_all_results('ins_staff'),
+				"recordsFiltered" => $totalFiltered,
+				"data" => $data
+			]);
+		}
+		// Staff Master: end
+
 		public function get_company_byid($id) {
 			$company = $this->master_model->get_company($id);
 			if ($company && count($company) > 0) {

@@ -242,6 +242,7 @@
                                                         ['menu' => 'master', 'submenu' => 'rto_list', 'menu_label' => 'Masters', 'submenu_label' => 'RTO'],
                                                         ['menu' => 'master', 'submenu' => 'agent_code_list', 'menu_label' => 'Masters', 'submenu_label' => 'Agent Code'],
                                                         ['menu' => 'master', 'submenu' => 'branch_list', 'menu_label' => 'Masters', 'submenu_label' => 'Branch'],
+                                                        ['menu' => 'master', 'submenu' => 'staff_list', 'menu_label' => 'Masters', 'submenu_label' => 'Staff'],
                                                         ['menu' => 'master', 'submenu' => 'insurance_company_list', 'menu_label' => 'Masters', 'submenu_label' => 'Insurance Company'],
                                                         ['menu' => 'master', 'submenu' => 'rto_company_list', 'menu_label' => 'Masters', 'submenu_label' => 'RTO Company'],
                                                         ['menu' => 'master', 'submenu' => 'emailtosend_report_list', 'menu_label' => 'Masters', 'submenu_label' => 'Email Settings'],

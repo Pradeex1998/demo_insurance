@@ -267,6 +267,14 @@
               <span>Branch</span>
             </a>
           </li>
+          <?php if (can_view('master', 'staff_list')): ?>
+          <li id="staff_list">
+            <a href="<?= base_url('admin/master/staff_list/'); ?>">
+              <i class="material-icons">supervisor_account</i>
+              <span>Staff</span>
+            </a>
+          </li>
+          <?php endif; ?>
           <?php endif; ?>
           <?php if (can_view('master', 'insurance_company_list')): ?>
           <li id="insurance_company_list">

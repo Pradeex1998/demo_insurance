@@ -168,7 +168,7 @@
 				$gross_premium = isset($dataMerged['gross_premium']) ? (float)str_replace(',', '', $dataMerged['gross_premium']) : 0.00;
 
 				$ins_data = [
-					'staff_name' => $this->session->userdata('username'),
+					'staff_id' => $this->input->post('staff_id') ?: null,
 					'agency_id' => $agency_id,
 					'login_id' => $login_id,
 					'credit_card_id' => $credit_card_id,

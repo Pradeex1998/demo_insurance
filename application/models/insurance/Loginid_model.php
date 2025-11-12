@@ -1,26 +1,6 @@
 <?php
 	class Loginid_model extends CI_Model {
 
-	private $loginid_field_labels = [
-		'name'        => 'Name',
-		'od_premium'  => 'OD Premium %',
-		'tp_premium'  => 'TP Premium %',
-		'net_premium' => 'NET Premium %',
-		'agent_odpremium' => 'Agent OD Payout %',
-		'agent_tppremium' => 'Agent TP Payout %',
-		'agent_netpremium' => 'Agent Net Payout %',
-		'rto_company_id' => 'RTO Company',
-		'vehicle_type' => 'Vehicle Type',
-		'fuel_type' => 'Fuel Type',
-		'policy_type' => 'Policy Type',
-		'seating_capacity' => 'Seating Capacity',
-		'code_type' => 'Code Type',
-		'code_name' => 'Code Name',
-		'vehicle_make' => 'Vehicle Make',
-		'vehicle_model' => 'Vehicle Model',
-		'status'      => 'Status',
-	];
-
 		public function save_loginid($data) {
 			if (isset($data['id']) && !empty($data['id'])) {
 				$data['updated_by'] = $this->session->userdata('admin_id');

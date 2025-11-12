@@ -257,11 +257,6 @@
         </section>
     </div>
 
-
-    <!-- Shared plugin JS moved to layout.php; keep page-specific scripts only -->
-     
-
-
     <script>
     $(document).ready(function() {
 

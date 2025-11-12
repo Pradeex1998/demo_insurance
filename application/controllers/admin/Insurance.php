@@ -86,6 +86,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			$data['id'] = $id;
 			$data['loginid'] = $this->common_model->get_data_array('ins_loginid');
 			$data['agencies'] = $this->agency_model->get_agency_by_branch();
+			$data['staffs'] = $this->master_model->active_staff_list();
 			
 			$data['mode'] = $mode;
 			$data['view'] = 'insurance/insurance_form';
@@ -142,7 +143,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			$columns = array(
 				// S.No, Staff Name, Insured Name, Policy Number, Registration No, Login ID, Agent Name, Contact No, Mail Id, Date, Company, Product Type, Pro Code, GVW Range, New, Vehicle Age, GVW, Year, Model, Start Date, End Date, Brokerage Name, Login Code, Carrying Capacity
 				0 => 'iir.id',
-				1 => 'iir.staff_name',
+				1 => 'isf.name',
 				2 => 'iir.insured_name',
 				3 => 'iir.policy_number',
 				4 => 'iir.registration_no',
@@ -270,7 +271,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			// Search filtering
 			$search_condition = '';
 			if (!empty($search)) {
-				$search_condition = "AND (iir.staff_name LIKE '%" . $this->db->escape_str($search) . "%' 
+				$search_condition = "AND (iir.name LIKE '%" . $this->db->escape_str($search) . "%' 
 					OR ag.name LIKE '%" . $this->db->escape_str($search) . "%' 
 					OR iir.company LIKE '%" . $this->db->escape_str($search) . "%' 
 					OR iir.insured_name LIKE '%" . $this->db->escape_str($search) . "%' 
@@ -298,6 +299,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 					ag.mobile_no AS agent_mobile_no,
 					ag.name AS agency_name,
 					il.name AS login_name,
+					COALESCE(isf.name, iir.staff_id) AS staff_name,
 					DATE_FORMAT(iir.updated_date, '%d/%m/%Y %H:%i') AS formatted_updated_date, 
 					DATE_FORMAT(iir.date, '%d-%m-%Y') AS formatted_date,
 					v.company_odpayout, v.company_tppayout, v.company_netpayout, v.company_totpayout,
@@ -309,6 +311,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				FROM ins_insurance_record iir
 				LEFT JOIN ins_agency ag ON iir.agency_id = ag.id
 				LEFT JOIN ins_loginid il ON iir.login_id = il.id
+				LEFT JOIN ins_staff isf ON iir.staff_id = isf.id
 				LEFT JOIN view_insurance_auto_calculation v ON iir.id = v.ins_id
 				WHERE iir.created_date BETWEEN '" . $this->db->escape_str($date_from) . "' AND '" . $this->db->escape_str($date_to) . "'
 					AND iir.is_delete = 0
@@ -388,7 +391,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			if ($limit != -1) {
 				$sql .= " LIMIT $start, $limit";
 			}
-		
+			// echo "<pre>";print_r($sql);exit();
 			$query_filtered = $this->db->query($sql);
 			
 			$totalFiltered = $query_filtered->num_rows();

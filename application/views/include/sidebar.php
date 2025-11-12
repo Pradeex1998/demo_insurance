@@ -152,6 +152,15 @@
         </li>
         <?php endif; ?>
 
+        <?php if (check_menu_access('insurance_policy')): ?>
+        <li id="insurance_policy">
+          <a href="<?= base_url('admin/insurance_policy/insurance_policy_list/'); ?>">
+            <i class="material-icons">assignment</i>
+            <span>Insurance Policy</span>
+          </a>
+        </li>
+        <?php endif; ?>
+
         <?php if (check_menu_access('insurance')): ?>
         <li id="insurance">
           <a href="<?= base_url('admin/insurance/insurance_list/'); ?>">

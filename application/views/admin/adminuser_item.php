@@ -231,6 +231,7 @@
                                                     // Define menu and submenu structure based on sidebar
                                                     $menuPermissions = [
                                                         ['menu' => 'agency', 'submenu' => 'agency_list', 'menu_label' => 'Agent', 'submenu_label' => 'Agent List'],
+                                                        ['menu' => 'insurance_policy', 'submenu' => 'insurance_policy_list', 'menu_label' => 'Insurance Policy', 'submenu_label' => 'Insurance Policy'],
                                                         ['menu' => 'insurance', 'submenu' => 'insurance_list', 'menu_label' => 'Insurance', 'submenu_label' => 'Insurance Record'],
                                                         ['menu' => 'reports', 'submenu' => 'payout_report', 'menu_label' => 'Reports', 'submenu_label' => 'Payout Report'],
                                                         ['menu' => 'reports', 'submenu' => 'agentwise_consolidated_report', 'menu_label' => 'Reports', 'submenu_label' => 'Agent wise Cons.Report'],

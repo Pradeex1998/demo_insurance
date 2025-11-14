@@ -211,11 +211,11 @@
             ],
             "columnDefs": [
                 {
-                    targets: [0, 1, 9, 10, 14, 29, 32, 33, 34, 35, 36], 
+                    targets: [0, 1, 9, 10, 14, 23, 25, 26, 27, 28, 34, 35, 36], 
                     className: 'text-center text-nowrap'
                 },
                 {
-                    targets: [19, 20, 21, 22, 27],
+                    targets: [19, 20, 21, 22],
                     className: 'text-right text-nowrap'
                 },
                 {
@@ -246,7 +246,7 @@
                 };
 
                 // Columns that need totals
-                var totalColumns = [19, 20, 21, 22, 26]; // OD, TP, Net, Premium, Company Grid 2
+                var totalColumns = [19, 20, 21, 22]; // OD, TP, Net, Premium
 
                 totalColumns.forEach(function(colIndex) {
                     var total = api.column(colIndex, { page: 'current' }).data().reduce(function(a, b) {

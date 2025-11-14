@@ -37,7 +37,7 @@
                         <br>
 
                         <div class="row clearfix">
-                            <div class="col-sm-6">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="name" name="name" type="text" maxlength="250" class="form-control"
@@ -49,41 +49,21 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row clearfix">
-                                <div class="col-sm-6">
-                                    <div class="form-group form-float">
-                                        <div class="form-line">
-                                            <select id="rto_company_id" name="rto_company_id" class="form-control" required
-                                                oninvalid="this.setCustomValidity('Please select an RTO Company')"
-                                                oninput="this.setCustomValidity('')">
-                                                <option value="">-- Select RTO Company --</option>
-                                                <?php if (!empty($rto_companies)) { foreach ($rto_companies as $rc) { ?>
-                                                    <option value="<?= htmlspecialchars($rc['id']); ?>"><?= htmlspecialchars($rc['company_name']); ?></option>
-                                                <?php } } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            
-                        </div>
-
-                        <div class="row clearfix">
-                            <div class="col-sm-3">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
-                                        <select id="vehicle_type" name="vehicle_type" class="form-control" required>
-                                            <option value="">-- Select Vehicle Type --</option>
-                                            <?php if (!empty($vehicle_types)) { foreach ($vehicle_types as $vt) { ?>
-                                                <option value="<?= htmlspecialchars($vt); ?>"><?= htmlspecialchars($vt); ?></option>
+                                        <select id="rto_company_id" name="rto_company_id" class="form-control" required
+                                            oninvalid="this.setCustomValidity('Please select an RTO Company')"
+                                            oninput="this.setCustomValidity('')">
+                                            <option value="">-- Select RTO Company --</option>
+                                            <?php if (!empty($rto_companies)) { foreach ($rto_companies as $rc) { ?>
+                                                <option value="<?= htmlspecialchars($rc['id']); ?>"><?= htmlspecialchars($rc['company_name']); ?></option>
                                             <?php } } ?>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <select id="fuel_type" name="fuel_type" class="form-control" required>
@@ -95,7 +75,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3">
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <select id="policy_type" name="policy_type" class="form-control" required>
@@ -107,31 +90,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3" id="seating_capacity_wrap" style="display:none;">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
-                                        <input id="seating_capacity" name="seating_capacity" type="number" min="1" class="form-control" />
-                                        <label class="form-label" id="seating_capacity_label">Seating Capacity</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row clearfix">
-                            
-                            <div class="col-sm-3">
-                                <div class="form-group form-float">
-                                    <div class="form-line">
-                                        <select id="agent_code" name="agent_code" class="form-control">
+                                        <select id="agent_code_id" name="agent_code_id" class="form-control">
                                             <option value="">-- Select Agent Code --</option>
                                             <?php if (!empty($agent_code)) { foreach ($agent_code as $ac) { ?>
-                                                <option value="<?= htmlspecialchars($ac['name']); ?>"><?= htmlspecialchars($ac['name']); ?></option>
+                                                <option value="<?= htmlspecialchars($ac['id']); ?>"><?= htmlspecialchars($ac['name']); ?></option>
                                             <?php } } ?>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="vehicle_make" name="vehicle_make" type="text" class="form-control" maxlength="100" />
@@ -139,7 +110,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3">
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="vehicle_model" name="vehicle_model" type="text" class="form-control" maxlength="100" />
@@ -147,12 +121,52 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <select id="vehicle_type" name="vehicle_type" class="form-control" required>
+                                            <option value="">-- Select Vehicle Type --</option>
+                                            <?php if (!empty($vehicle_types)) { foreach ($vehicle_types as $vt) { ?>
+                                                <option value="<?= htmlspecialchars($vt); ?>"><?= htmlspecialchars($vt); ?></option>
+                                            <?php } } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group form-float">
+                                    <select id="status" name="status" class="form-control">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        
+                        <div class="row clearfix" id="seating_capacity_row" style="display:none;">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="seating_capacity_from" name="seating_capacity_from" type="number" min="1"
+                                            class="form-control" oninput="this.setCustomValidity('')" />
+                                        <label class="form-label required">Seating Capacity From</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="seating_capacity_to" name="seating_capacity_to" type="number" min="1"
+                                            class="form-control" oninput="this.setCustomValidity('')" />
+                                        <label class="form-label required">Seating Capacity To</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row clearfix">
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="od_premium" name="od_premium" type="number" maxlength="250" class="form-control" value="0.00" step="0.01"/>
@@ -161,7 +175,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="tp_premium" name="tp_premium" type="number" maxlength="250" class="form-control" value="0.00" step="0.01"/>
@@ -170,7 +184,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="net_premium" name="net_premium" type="number" min="0" maxlength="250" class="form-control" required value="0.00" step="0.01"
@@ -180,6 +194,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12"></div>
                         </div>
                         <hr>
                         <div class="row clearfix">
@@ -190,7 +205,7 @@
                         <br>
 
                         <div class="row clearfix">
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="agent_odpremium" name="agent_odpremium" type="number" maxlength="250" class="form-control" value="0.00" step="0.01"/>
@@ -199,7 +214,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="agent_tppremium" name="agent_tppremium" type="number" maxlength="250" class="form-control" value="0.00" step="0.01"/>
@@ -208,7 +223,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-4">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <div class="form-group form-float">
                                     <div class="form-line">
                                         <input id="agent_netpremium" name="agent_netpremium" type="number" min="1" maxlength="250" class="form-control" required value="" step="0.01"
@@ -218,21 +233,14 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12"></div>
                         </div>
 
                         <div class="row clearfix">
-                            <div class="col-sm-6">
-                                <div class="form-group form-float">
-                                    <select id="status" name="status" class="form-control">
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="form-group text-right">
                                     <button id="submit_btn" type="submit"
-                                        class="btn bg-green waves-effect pull-right"><i class="material-icons">add</i>
+                                        class="btn bg-green waves-effect"><i class="material-icons">add</i>
                                         Submit</button>
                                 </div>
                             </div>
@@ -446,19 +454,48 @@ $(document).ready(function() {
     // Show seating capacity when School/Staff Bus
     function toggleSeating() {
         var vt = ($('#vehicle_type').val() || '').toUpperCase();
-        if (vt === 'SCHOOL BUS' || vt === 'STAFF BUS') {
-            $('#seating_capacity_wrap').show();
-            $('#seating_capacity').attr('required', 'required');
+        var isSchoolVehicle = vt.indexOf('SCHOOL') !== -1 || vt.indexOf('STAFF BUS') !== -1;
+        if (isSchoolVehicle) {
+            $('#seating_capacity_row').show();
+            $('#seating_capacity_from, #seating_capacity_to').attr('required', 'required');
         } else {
-            $('#seating_capacity_wrap').hide();
-            $('#seating_capacity').removeAttr('required').val('');
+            $('#seating_capacity_row').hide();
+            $('#seating_capacity_from, #seating_capacity_to').removeAttr('required').val('').each(function() {
+                this.setCustomValidity('');
+            });
         }
+        validateSeatingRange();
     }
     $('#vehicle_type').on('change', toggleSeating);
     setTimeout(toggleSeating, 600);
 
     
    
+
+    function validateSeatingRange() {
+        var fromVal = parseInt($('#seating_capacity_from').val(), 10);
+        var toVal = parseInt($('#seating_capacity_to').val(), 10);
+
+        var fromInput = $('#seating_capacity_from')[0];
+        var toInput = $('#seating_capacity_to')[0];
+
+        if (fromInput) {
+            fromInput.setCustomValidity('');
+        }
+        if (toInput) {
+            toInput.setCustomValidity('');
+        }
+
+        if ($('#seating_capacity_row').is(':visible')) {
+            if (!isNaN(fromVal) && !isNaN(toVal) && fromVal > toVal) {
+                if (toInput) {
+                    toInput.setCustomValidity('Seating capacity "To" must be greater than or equal to "From".');
+                }
+            }
+        }
+    }
+
+    $('#seating_capacity_from, #seating_capacity_to').on('input', validateSeatingRange);
 
     // Agent payout field interactions
     $('#agent_odpremium, #agent_tppremium').on('input', function() {

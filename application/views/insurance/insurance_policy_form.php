@@ -3,10 +3,62 @@
 
 
 <div class="container-fluid">
+    <style>
+        /* Ensure top-aligned labels for selects (labels that are direct children of form-group) */
+        #contact_div .form-group > label.form-label {
+            display: block;
+            margin-bottom: 6px;
+        }
+        /* Normalize floating labels inside .form-line to behave like top labels */
+        #contact_div .form-line {
+            position: relative;
+            padding-top: 18px;
+        }
+        #contact_div .form-line > label.form-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            font-size: 12px;
+            line-height: 1.2;
+            transform: none;
+            opacity: 1;
+        }
+        /* Ensure consistent spacing between fields */
+        #contact_div .form-group {
+            margin-bottom: 15px;
+        }
+        /* Make Select2 match input heights and full width */
+        #agent_split_section .select2-container,
+        #company_split_section .select2-container {
+            width: 100% !important;
+        }
+        #contact_div .select2-container {
+            width: 100% !important;
+        }
+        #contact_div .select2-container .select2-selection--single {
+            height: 34px;
+        }
+        #contact_div .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 34px;
+        }
+        #contact_div .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 34px;
+        }
+        /* Minor tweak so inputs with floating label don't add extra top space */
+        /* Error label styling */
+        #contact_div label.error {
+            color: #f44336;
+            display: none;
+            margin-top: 4px;
+            font-size: 12px;
+        }
+       
+    </style>
     <!-- <div class="block-header">
         <h2><?php echo $title;?></h2>
     </div> -->
-    <form id="ins-form" method="post" enctype="multipart/form-data">
+    <form id="ins-form" method="post" enctype="multipart/form-data" novalidate>
         <div class="row clearfix">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
@@ -46,6 +98,7 @@
                         <div class="row clearfix">
                             <div class="col-sm-6 col-md-3">
                                 <div class="form-group form-float">
+                                    <label class="form-label">Staff</label>
                                     <select id="staff_id" name="staff_id" class="form-control" required>
                                         <option value="">-- Select Staff --</option>
                                         <?php if (isset($staffs) && !empty($staffs)) : ?>
@@ -58,28 +111,13 @@
                                             <option value="">No staff found</option>
                                         <?php endif; ?>
                                     </select>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6 col-md-3">
-                                <div class="form-group form-float"> 
-                                    <select id="login_id" name="login_id" class="form-control" required>
-                                        <option value="">-- Select Login ID --</option>
-                                        <?php if (isset($login_ids) && !empty($login_ids)) : ?>
-                                            <?php foreach ($login_ids as $item) : ?>
-                                                <option value="<?php echo $item['id']; ?>">
-                                                    <?php echo $item['name']; ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php else : ?>
-                                            <option value="">No Login IDs found</option>
-                                        <?php endif; ?>
-                                    </select>
+                                    <label class="error" for="staff_id" style="display:none;"></label>
                                 </div>
                             </div>
 
                             <div class="col-sm-6 col-md-3">
                                 <div class="form-group form-float">
+                                    <label class="form-label">Agent</label>
                                     <select id="agent_id" name="agent_id" class="form-control" required>
                                         <option value="">-- Select Agent --</option>
                                         <?php if (isset($agents) && !empty($agents)) : ?>
@@ -92,12 +130,33 @@
                                             <option value="">No agents found</option>
                                         <?php endif; ?>
                                     </select>
+                                    <label class="error" for="agent_id" style="display:none;"></label>
                                 </div>
                             </div>
 
-                            <div class="col-sm-6 col-md-3">
+                            <div class="col-sm-6 col-md-6">
+                                <div class="form-group form-float"> 
+                                    <label class="form-label">Login ID</label>
+                                    <select id="login_id" name="login_id" class="form-control" required>
+                                        <option value="">-- Select Login ID --</option>
+                                        <?php if (isset($login_ids) && !empty($login_ids)) : ?>
+                                            <?php foreach ($login_ids as $item) : ?>
+                                                <option value="<?php echo $item['id']; ?>">
+                                                    <?php echo $item['name']; ?> -- <?php echo $item['agent_code_name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php else : ?>
+                                            <option value="">No Login IDs found</option>
+                                        <?php endif; ?>
+                                    </select>
+                                    <label class="error" for="login_id" style="display:none;"></label>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-sm-6 col-md-3">
                                 <div class="form-group form-float">
-                                    <select id="agent_code_id" name="agent_code_id" class="form-control">
+                                    <label class="form-label">Agent Code</label>
+                                    <select id="agent_code_id" name="agent_code_id" class="form-control" required>
                                         <option value="">-- Select Agent Code --</option>
                                         <?php if (isset($agent_codes) && !empty($agent_codes)) : ?>
                                             <?php foreach ($agent_codes as $item) : ?>
@@ -109,54 +168,26 @@
                                             <option value="">No agent codes found</option>
                                         <?php endif; ?>
                                     </select>
+                                    <label class="error" for="agent_code_id" style="display:none;"></label>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <div class="row clearfix">
+
                             <div class="col-sm-4 col-md-3">
                                 <div class="form-group form-float">
-                                    <select id="payment_mode" name="payment_mode" class="form-control" required>
-                                        <option value="">-- Payment Mode --</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Cheque">Cheque</option>
-                                        <option value="Credit">Credit Card</option>
-                                        <option value="CutPay">Cut & Pay</option>
-                                        <option value="Online">Online</option>
-                                        <option value="UPI">UPI</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 col-md-3">
-                                <div class="form-group form-float">
+                                    <label class="form-label">Paid Type</label>
                                     <select id="paid_type" name="paid_type" class="form-control" required>
                                         <option selected value="">-- Select Payment --</option>
-                                        <option value="Agent Paid">Agent Paid</option>
-                                        <option value="Company Paid">Company Paid</option>
+                                        <option value="agent_paid">Agent Paid</option>
+                                        <option value="company_paid">Company Paid</option>
+                                        <option value="agent_company_paid">Agent & Company Paid</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 col-md-3">
-                                <div class="form-group form-float">
-                                    <div class="form-line">
-                                        <input id="amount_from_agent" name="amount_from_agent" type="number" class="form-control" />
-                                        <label class="form-label">Amount From Agent</label>
-                                    </div>
+                                    <label class="error" for="paid_type" style="display:none;"></label>
                                 </div>
                             </div>
 
-                            <div class="col-sm-3" id="credit_card_wrap" style="display:none;">
-                                <div class="form-group form-float">
-                                    <select id="credit_card_id" name="credit_card_id" class="form-control">
-                                        <option value="">-- Select Credit Card --</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Account Field -->
-                        <div class="row clearfix">
                             <div class="col-sm-3 col-md-3">
                                 <div class="form-group form-float">
                                     <div class="form-line">
@@ -194,14 +225,105 @@
                             <?php if ($mode != 'a') : ?>
                             <div class="col-sm-3">
                                 <div class="form-group form-float">
+                                    <label class="form-label">Status</label>
                                     <select id="status" name="status" class="form-control" required>
                                         <option value="active" <?= (isset($status) && $status == 'active') ? 'selected' : '' ?>>Active</option>
                                         <option value="inactive" <?= (isset($status) && $status == 'inactive') ? 'selected' : '' ?>>Inactive</option>
                                     </select>
+                                    <label class="error" for="status" style="display:none;"></label>
                                 </div>
                             </div>
                             <?php endif; ?>
-                            
+                        </div>
+
+                        <div class="row clearfix" id="agent_split_section" style="display:none;">
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group form-float">
+                                    <label class="form-label">Agent Payment Mode</label>
+                                    <select id="agent_payment_mode" name="agent_payment_mode" class="form-control">
+                                        <option value="">-- Payment Mode --</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Credit">Credit Card</option>
+                                        <option value="Cut & Pay">Cut &amp; Pay</option>
+                                        <option value="Online">Online</option>
+                                        <option value="UPI">UPI</option>
+                                    </select>
+                                    <label class="error" for="agent_payment_mode" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="agent_amount" name="agent_amount" type="number" class="form-control" min="0" step="0.01" <?php if ($mode == 'v') echo 'readonly'; ?> />
+                                        <label class="form-label">Agent Amount</label>
+                                    </div>
+                                    <label class="error" for="agent_amount" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3" id="agent_chequeno_wrap" style="display:none;">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="agent_chequeno" name="agent_chequeno" type="text" class="form-control" <?php if ($mode == 'v') echo 'readonly'; ?> />
+                                        <label class="form-label">Agent Cheque No</label>
+                                    </div>
+                                    <label class="error" for="agent_chequeno" style="display:none;"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix" id="company_split_section" style="display:none;">
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group form-float">
+                                    <label class="form-label">Company Payment Mode</label>
+                                    <select id="company_payment_mode" name="company_payment_mode" class="form-control">
+                                        <option value="">-- Payment Mode --</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Credit">Credit Card</option>
+                                        <option value="Cut & Pay">Cut &amp; Pay</option>
+                                        <option value="Online">Online</option>
+                                        <option value="UPI">UPI</option>
+                                    </select>
+                                    <label class="error" for="company_payment_mode" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="company_amount" name="company_amount" type="number" class="form-control" min="0" step="0.01" <?php if ($mode == 'v') echo 'readonly'; ?> />
+                                        <label class="form-label">Company Amount</label>
+                                    </div>
+                                    <label class="error" for="company_amount" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3" id="company_chequeno_wrap" style="display:none;">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="company_chequeno" name="company_chequeno" type="text" class="form-control" <?php if ($mode == 'v') echo 'readonly'; ?> />
+                                        <label class="form-label">Company Cheque No</label>
+                                    </div>
+                                    <label class="error" for="company_chequeno" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-3" id="company_issuer_name_wrap" style="display:none;">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input id="company_issuer_name" name="company_issuer_name" type="text" class="form-control" <?php if ($mode == 'v') echo 'readonly'; ?> />
+                                        <label class="form-label">Company Issuer Name</label>
+                                    </div>
+                                    <label class="error" for="company_issuer_name" style="display:none;"></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3" id="company_credit_card_wrap" style="display:none;">
+                                <div class="form-group form-float">
+                                    <label class="form-label">Company Credit Card</label>
+                                    <select id="company_credit_card_id" name="company_credit_card_id" class="form-control">
+                                        <option value="">-- Select Credit Card --</option>
+                                    </select>
+                                    <label class="error" for="company_credit_card_id" style="display:none;"></label>
+                                </div>
+                            </div>
                         </div>
 
                         <?php if ($mode != 'a') : ?>
@@ -278,23 +400,9 @@
                                 </div>
                             </div>
 
-                            <!-- RTO/Company ID -->
-                            <div class="col-sm-4">
-                                <div class="form-group form-float">
-                                    <select id="rto_company_id" name="rto_company_id" class="form-control">
-                                        <option value="">-- Select RTO Company --</option>
-                                        <?php if (isset($rto_companies) && !empty($rto_companies)) : ?>
-                                            <?php foreach ($rto_companies as $item) : ?>
-                                                <option value="<?php echo $item['id']; ?>">
-                                                    <?php echo $item['name']; ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php else : ?>
-                                            <option value="">No RTO companies found</option>
-                                        <?php endif; ?>
-                                    </select>
-                                </div>
-                            </div>
+                            
+
+                           
 
                             <!-- MFG Year -->
                             <div class="col-sm-4">
@@ -457,15 +565,37 @@
                                 </div>
                             </div>
 
+                            <!-- RTO/Company ID -->
+                            <div class="col-sm-4 col-md-4">
+                                <div class="form-group form-float">
+                                    <label class="form-label">RTO Company</label>
+                                    <select id="rto_company_id" name="rto_company_id" class="form-control">
+                                        <option value="">-- Select RTO Company --</option>
+                                        <?php if (isset($rto_companies) && !empty($rto_companies)) : ?>
+                                            <?php foreach ($rto_companies as $item) : ?>
+                                                <option value="<?php echo $item['id']; ?>">
+                                                    <?php echo $item['name']; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php else : ?>
+                                            <option value="">No RTO companies found</option>
+                                        <?php endif; ?>
+                                    </select>
+                                    <label class="error" for="rto_company_id" style="display:none;"></label>
+                                </div>
+                            </div>
+
                             <!-- Verified Status -->
                             <div class="col-sm-4">
                                 <div class="form-group form-float">
+                                    <label class="form-label">Verified Status</label>
                                     <select id="verified_status" name="verified_status" class="form-control">
                                         <option value="">-- Verified Status --</option>
                                         <option value="missing">Missing</option>
                                         <option value="shortfall">Shortfall</option>
                                         <option value="done">Done</option>
                                     </select>
+                                    <label class="error" for="verified_status" style="display:none;"></label>
                                 </div>
                             </div>
                         </div>
@@ -532,13 +662,19 @@ function donePageProgress() {
     }
 }
 $(document).ready(function() {
-    $('#agent_id, #login_id, #status, #payment_mode, #paid_type, #credit_card_id, #staff_id, #agent_code_id, #rto_company_id, #verified_status').select2();
-    $('#login_id').select2({ width: '100%' });
-    $('#agent_id').select2({ width: '100%' });
-    $('#credit_card_id').select2({ width: '100%' });
-    $('#staff_id').select2({ width: '100%' });
+    $('#agent_id, #login_id, #status, #payment_mode, #paid_type, #staff_id, #agent_code_id, #rto_company_id, #verified_status, #agent_payment_mode, #company_payment_mode, #company_credit_card_id').select2();
+    function ensureSelect2FullWidth($elements) {
+        $elements.each(function() {
+            var instance = $(this).data('select2');
+            if (instance && instance.$container) {
+                instance.$container.css('width', '100%');
+            }
+        });
+    }
+    ensureSelect2FullWidth($('#agent_payment_mode, #company_payment_mode, #company_credit_card_id'));
     var id = <?php echo json_encode($id); ?>;
-    var savedCreditCardId = null; // Store credit_card_id for edit mode
+    var savedCompanyCreditCardId = null;
+  
     var currentPdfPath = null;
     var $pdfButton = $('#pdf-ins');
     if ($pdfButton.length) {
@@ -561,6 +697,21 @@ $(document).ready(function() {
             setPdfView(currentPdfPath);
         });
     }
+
+    function applyViewModeLock() {
+        if (mode !== 'v') { return; }
+        var $form = $('#ins-form');
+        $form.find('input, select, textarea').not('[type="hidden"]').each(function() {
+            var $el = $(this);
+            $el.prop('disabled', true);
+        });
+        $form.find('select').each(function() {
+            var $sel = $(this);
+            $sel.prop('disabled', true).trigger('change.select2');
+        });
+        $form.find('button').not('#edit-ins, #pdf-ins, #del-ins').prop('disabled', true).addClass('disabled');
+        $('#submit_btn').prop('disabled', true).addClass('disabled');
+    }
     if (id) { $('#id').val(id); }
     if (mode === 'e' || mode === 'v') {
         $.ajax({
@@ -571,7 +722,8 @@ $(document).ready(function() {
             success: function(resp){
                 if (resp && resp.status === '1' && resp.data) {
                     var data = resp.data;
-                    ['policy_no','vehicle_no','customer_name','make','model','vehicle_type','mfg_year','age','gvw','ncb','policy_type','start_date','end_date','company_name','od','tp','net','premium','reward','company_grid','company_grid2','tds','created_by','updated_by','created_at','updated_at'].forEach(function(k){
+                    // console.log("data",data);
+					['policy_no','vehicle_no','customer_name','make','model','vehicle_type','mfg_year','age','gvw','ncb','policy_type','start_date','end_date','company_name','od','tp','net','premium','reward','company_grid','company_grid2','tds','created_by','updated_by','created_at','updated_at','company_chequeno','company_issuer_name','agent_chequeno','received_account','received_date'].forEach(function(k){
                         if ($('#'+k).length && data[k] !== undefined) { $('#'+k).val(data[k]); }
                     });
                     if (data.staff_id !== undefined) $('#staff_id').val(data.staff_id).trigger('change');
@@ -579,19 +731,35 @@ $(document).ready(function() {
                     if (data.login_id !== undefined) $('#login_id').val(data.login_id).trigger('change');
                     if (data.agent_code_id !== undefined) $('#agent_code_id').val(data.agent_code_id).trigger('change');
                     if (data.rto_company_id !== undefined) $('#rto_company_id').val(data.rto_company_id).trigger('change');
-                    // Store credit_card_id before setting payment_mode
-                    if (data.credit_card_id !== undefined && data.credit_card_id !== null && data.credit_card_id !== '') {
-                        savedCreditCardId = data.credit_card_id;
+                    if (data.company_credit_card_id !== undefined && data.company_credit_card_id !== null && data.company_credit_card_id !== '') {
+                        savedCompanyCreditCardId = data.company_credit_card_id;
+                    } else {
+                        savedCompanyCreditCardId = null;
+                    }
+
+                    if (data.agent_payment_mode !== undefined) {
+                        $('#agent_payment_mode').val(data.agent_payment_mode);
+                    }
+                    if (data.company_payment_mode !== undefined) {
+                        $('#company_payment_mode').val(data.company_payment_mode);
+                    }
+                    if (data.paid_type !== undefined) {
+                        $('#paid_type').val(data.paid_type).trigger('change');
+                    } else {
+                        updatePaidTypeSections();
                     }
                     if (data.payment_mode !== undefined) {
                         $('#payment_mode').val(data.payment_mode).trigger('change');
-                        // If payment mode is Credit, load and set credit card after a short delay
-                        if (data.payment_mode === 'Credit' && savedCreditCardId) {
-                            setTimeout(function() {
-                                loadActiveCreditCards(savedCreditCardId);
-                            }, 100);
-                        }
                     }
+                    if (data.agent_payment_mode !== undefined) {
+                        $('#agent_payment_mode').trigger('change');
+                        toggleAgentChequeFields();
+                    }
+                    if (data.company_payment_mode !== undefined) {
+                        $('#company_payment_mode').trigger('change');
+                    }
+                    if (data.agent_amount !== undefined) { $('#agent_amount').val(data.agent_amount); }
+					if (data.company_amount !== undefined) { $('#company_amount').val(data.company_amount); }
                     if (data.verified_status !== undefined) $('#verified_status').val(data.verified_status).trigger('change');
                     if (data.status !== undefined) $('#status').val(data.status).trigger('change');
                     if ($pdfButton.length) {
@@ -618,64 +786,125 @@ $(document).ready(function() {
         window.location.href = '<?php echo base_url('admin/insurance_policy/insurance_policy_form/e/'); ?>' + id;
     });
 
-    $("#approve-ins").click(function() {
-        var insuranceId = $("#id").val();
-        var uploadStatus = 1;
-        changeUploadStatus(insuranceId, uploadStatus);
-    });
-
-    // $('#date').datepicker({
-    //     dateFormat: 'dd-m-yy',
-    //     changeMonth: true,
-    //     changeYear: true
-    // });
-
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        $('select').each(function() { 
-            $(this).val($(this).find('option:eq(1)').val()).change();
-        });
-    }
-    // Toggle Credit Card select by payment mode
-    function toggleCreditCardSelect() {
-        var modeVal = $('#payment_mode').val();
-        if (modeVal === 'Credit' || modeVal === 'Credit Card') {
-            $('#credit_card_wrap').show();
-            $('#credit_card_id').attr('required', true);
-            // Use saved credit_card_id if available (for edit mode), otherwise use current dropdown value
-            var currentVal = savedCreditCardId || $('#credit_card_id').val();
-            loadActiveCreditCards(currentVal);
-        } else {
-            $('#credit_card_wrap').hide();
-            $('#credit_card_id').removeAttr('required');
-            $('#credit_card_id').val('').trigger('change');
-            savedCreditCardId = null; // Clear saved value when payment mode changes
-        }
-    }
-    $('#payment_mode').on('change', toggleCreditCardSelect);
-    // initial
-    toggleCreditCardSelect();
-
-    function loadActiveCreditCards(selectedId) {
+    // if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    //     $('select').each(function() { 
+    //         $(this).val($(this).find('option:eq(1)').val()).change();
+    //     });
+    // }
+    function loadActiveCreditCardsInto($sel, selectedId) {
         $.ajax({
             url: '<?php echo base_url('admin/master/active_credit_cards'); ?>',
             type: 'GET',
             dataType: 'json',
             success: function(res) {
                 if (res && res.status === '1') {
-                    var $sel = $('#credit_card_id');
-                    var selectedVal = selectedId || $sel.val();
+                    var selectedVal = (selectedId !== undefined && selectedId !== null && selectedId !== '') ? selectedId
+                        : $sel.val();
                     $sel.empty().append('<option value="">-- Select Credit Card --</option>');
                     res.data.forEach(function(item){
                         var text = item.name + ' - ' + item.bank;
                         $sel.append($('<option>', { value: item.id, text: text }));
                     });
-                    if (selectedVal) {
-                        $sel.val(selectedVal).trigger('change');
+                    if (selectedVal !== undefined && selectedVal !== null && selectedVal !== '') {
+                        $sel.val(String(selectedVal)).trigger('change');
+                    } else {
+                        $sel.val('').trigger('change');
                     }
                 }
             }
         });
     }
+
+    function toggleCompanyCreditCardSelect() {
+        var modeVal = $('#company_payment_mode').val();
+        if (modeVal === 'Credit' || modeVal === 'Credit Card') {
+            $('#company_credit_card_wrap').show();
+            $('#company_credit_card_id').attr('required', true);
+            var currentVal = (savedCompanyCreditCardId !== null && savedCompanyCreditCardId !== undefined && savedCompanyCreditCardId !== '') ? savedCompanyCreditCardId
+                : $('#company_credit_card_id').val();
+            loadActiveCreditCardsInto($('#company_credit_card_id'), currentVal);
+        } else {
+            $('#company_credit_card_wrap').hide();
+            $('#company_credit_card_id').removeAttr('required').val('').trigger('change');
+            savedCompanyCreditCardId = null;
+        }
+    }
+    function toggleAgentChequeFields() {
+        var modeVal = $('#agent_payment_mode').val();
+        if (modeVal === 'Cheque') {
+            $('#agent_chequeno_wrap').show();
+            $('#agent_chequeno').attr('required', true);
+        } else {
+            $('#agent_chequeno_wrap').hide();
+            $('#agent_chequeno').removeAttr('required').val('');
+            $('label.error[for="agent_chequeno"]').text('').hide();
+            $('#agent_chequeno').removeClass('error');
+        }
+    }
+    $('#agent_payment_mode').on('change', function() {
+        toggleAgentChequeFields();
+    });
+    
+    function toggleCompanyChequeFields() {
+        var modeVal = $('#company_payment_mode').val();
+        if (modeVal === 'Cheque') {
+            $('#company_chequeno_wrap').show();
+            $('#company_chequeno').attr('required', true);
+            $('#company_issuer_name_wrap').show();
+            $('#company_issuer_name').attr('required', true);
+        } else {
+            $('#company_chequeno_wrap').hide();
+            $('#company_chequeno').removeAttr('required').val('');
+            $('label.error[for="company_chequeno"]').text('').hide();
+            $('#company_chequeno').removeClass('error');
+            $('#company_issuer_name_wrap').hide();
+            $('#company_issuer_name').removeAttr('required').val('');
+            $('label.error[for="company_issuer_name"]').text('').hide();
+            $('#company_issuer_name').removeClass('error');
+        }
+    }
+    $('#company_payment_mode').on('change', function() {
+        toggleCompanyCreditCardSelect();
+        toggleCompanyChequeFields();
+    });
+
+    function updatePaidTypeSections() {
+        var paidType = $('#paid_type').val();
+		var showAgent = (paidType === 'agent_paid' || paidType === 'agent_company_paid');
+		var showCompany = (paidType === 'company_paid' || paidType === 'agent_company_paid');
+
+        if (showAgent) {
+            $('#agent_split_section').show();
+            $('#agent_payment_mode').attr('required', true);
+            $('#agent_amount').attr('required', true);
+            toggleAgentChequeFields();
+            ensureSelect2FullWidth($('#agent_payment_mode'));
+        } else {
+            $('#agent_split_section').hide();
+            $('#agent_payment_mode').removeAttr('required').val('').trigger('change');
+            $('#agent_amount').removeAttr('required').val('');
+            $('#agent_chequeno_wrap').hide();
+            $('#agent_chequeno').removeAttr('required').val('');
+        }
+
+        if (showCompany) {
+            $('#company_split_section').show();
+            $('#company_payment_mode').attr('required', true);
+            $('#company_amount').attr('required', true);
+            toggleCompanyCreditCardSelect();
+            toggleCompanyChequeFields();
+            ensureSelect2FullWidth($('#company_payment_mode, #company_credit_card_id'));
+        } else {
+            $('#company_split_section').hide();
+            $('#company_payment_mode').removeAttr('required').val('').trigger('change');
+            $('#company_amount').removeAttr('required').val('');
+            $('#company_credit_card_wrap').hide();
+            $('#company_credit_card_id').removeAttr('required').val('').trigger('change');
+        }
+    }
+    $('#paid_type').on('change', updatePaidTypeSections);
+    updatePaidTypeSections();
+    applyViewModeLock();
 
     if (mode === 'a') {
         $('#received_date_line').addClass('focused');
@@ -683,12 +912,89 @@ $(document).ready(function() {
 
     // Add 'focused' class to all form-line elements on page load
     $('.form-line').addClass('focused');
+
+    // Ensure every control has an associated hidden error label (for jQuery Validate or custom usage)
+    (function ensureErrorLabels() {
+        $('#contact_div').find('input[id], select[id], textarea[id]').each(function() {
+            var id = this.id;
+            if (!id) return;
+            var $group = $(this).closest('.form-group');
+            if ($group.length === 0) {
+                $group = $(this).parent();
+            }
+            if ($group.find('label.error[for="' + id + '"]').length === 0) {
+                $('<label class="error" for="' + id + '" style="display:none;"></label>').appendTo($group);
+            }
+        });
+    })();
+    // Clear error label on user input/change
+    $('#contact_div').on('input change', 'input[required], select[required], textarea[required]', function() {
+        var id = this.id;
+        if (!id) return;
+        var $label = $('label.error[for="' + id + '"]');
+        $label.text('').hide();
+        if ($(this).is('select')) {
+            var s2 = $(this).data('select2');
+            if (s2 && s2.$container) {
+                s2.$container.removeClass('select2-error');
+            }
+        } else {
+            $(this).removeClass('error');
+        }
+    });
     
 });
 
 
 </script>
 
+<script>
+// Simple required-field validator that shows our red error labels instead of browser tooltips
+function validateForm() {
+    var isValid = true;
+    // Only validate visible required fields (conditional sections manage required attrs already)
+    $('#contact_div').find('input[required], select[required], textarea[required]').each(function() {
+        var $field = $(this);
+        var id = this.id;
+        if (!id) { return; }
+        // Skip fields not visible (hidden by section toggles)
+        if (!$field.is(':visible')) { return; }
+        var value = ($field.is('select')) ? ($field.val() || '') : $.trim($field.val() || '');
+        var empty = (value === '' || value === null);
+        var $label = $('label.error[for="' + id + '"]');
+        if (empty) {
+            isValid = false;
+            $label.text('This field is required.').show();
+            if ($field.is('select')) {
+                var s2 = $field.data('select2');
+                if (s2 && s2.$container) {
+                    s2.$container.addClass('select2-error');
+                }
+            } else {
+                $field.addClass('error');
+            }
+        } else {
+            $label.text('').hide();
+            if ($field.is('select')) {
+                var s2c = $field.data('select2');
+                if (s2c && s2c.$container) {
+                    s2c.$container.removeClass('select2-error');
+                }
+            } else {
+                $field.removeClass('error');
+            }
+        }
+    });
+    // Scroll to first visible error label if any
+    if (!isValid) {
+        var $firstErr = $('#contact_div label.error:visible').first();
+        if ($firstErr.length) {
+            $('html, body').animate({ scrollTop: $firstErr.offset().top - 100 }, 300);
+        }
+    }
+    return isValid;
+}
+</script>
 
 <script>
 $(document).ready(function() {
@@ -812,7 +1118,7 @@ $(document).ready(function() {
 
                 $("#ins-form").on("submit", function(e) {
                     e.preventDefault();
-                    if ($(this).valid()) {
+                    if (validateForm()) {
                         console.log("Form valid. Mode:", mode);
 						var queued = myDropzone.getQueuedFiles().length;
 						if (queued === 0) {
@@ -840,6 +1146,10 @@ $(document).ready(function() {
     if (mode === 'e') {
         $("#ins-form").on("submit", function(e){
             e.preventDefault();
+            if (!validateForm()) { 
+                console.log("Form validation failed.");
+                return; 
+            }
             updatePolicyAjax();
         });
     }
@@ -1078,37 +1388,6 @@ function copyToClipboard(text, btn) {
                     title: 'Network error',
                     text: 'Unable to delete policy right now.'
                 });
-            },
-            complete: donePageProgress
-        });
-    }
-
-    function changeUploadStatus(insuranceId, uploadStatus) {
-        var url = "<?php echo base_url('admin/insurance/insurance_changeuploadstatus/'); ?>" + insuranceId + "/" + uploadStatus;
-        if (!confirm("Are you sure you want to change the status to approved?")) return;
-        $.ajax({
-            url: url,
-            type: 'GET',
-            beforeSend: startPageProgress,
-            success: function(response) {
-                const res = JSON.parse(response);
-                if (res.status === '1') {
-                    var redirectUrl = "<?php echo base_url().'admin/insurance/insurance_list';?>";
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Upload status change successfully',
-                        timer: 2300,  
-                        timerProgressBar: true,
-                        willClose: () => {  
-                            window.location.href = redirectUrl;
-                        }
-                    });
-                } else {
-                    alert(res.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('Error occurred: ' + error);
             },
             complete: donePageProgress
         });

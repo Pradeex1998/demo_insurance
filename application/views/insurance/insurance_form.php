@@ -99,7 +99,7 @@
                                         <option value="Cash">Cash</option>
                                         <option value="Cheque">Cheque</option>
                                         <option value="Credit">Credit Card</option>
-                                        <option value="CutPay">Cut & Pay</option>
+                                        <option value="Cut & Pay">Cut & Pay</option>
                                         <option value="Online">Online</option>
                                         <option value="UPI">UPI</option>
                                     </select>

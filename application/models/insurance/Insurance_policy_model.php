@@ -41,9 +41,12 @@
 			$allowed = array(
 				'policy_no','vehicle_no','customer_name','make','model','vehicle_type','rto_company_id',
 				'mfg_year','age','gvw','ncb','policy_type','start_date','end_date','company_name',
-				'agent_code_id','payment_mode','credit_card_id','od','tp','net','premium','reward','agent_id',
+				'agent_code_id','od','tp','net','premium','reward','agent_id',
 				'login_id','file_path','company_grid','company_grid2','tds','staff_id','verified_status','status','is_delete',
-				'created_by','updated_by','created_at','updated_at'
+				'created_by','updated_by','created_at','updated_at',
+				'paid_type','agent_payment_mode','agent_amount','agent_chequeno',
+				'company_payment_mode','company_amount','company_credit_card_id','company_chequeno','company_issuer_name',
+				'received_account','received_date'
 			);
 			$filtered = array();
 			foreach ($allowed as $key) {

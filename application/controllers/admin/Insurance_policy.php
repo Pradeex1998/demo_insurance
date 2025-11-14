@@ -59,7 +59,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			15 => 'ip.end_date',
 			16 => 'ip.company_name',
 			17 => 'iac.name',
-			18 => 'ip.payment_mode',
+			18 => 'ip.name',
 			19 => 'ip.od',
 			20 => 'ip.tp',
 			21 => 'ip.net',
@@ -120,7 +120,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				ip.end_date LIKE '%" . $escapedSearch . "%' OR
 				ip.company_name LIKE '%" . $escapedSearch . "%' OR
 				iac.name LIKE '%" . $escapedSearch . "%' OR
-				ip.payment_mode LIKE '%" . $escapedSearch . "%' OR
+				ip.name LIKE '%" . $escapedSearch . "%' OR
 				ip.od LIKE '%" . $escapedSearch . "%' OR
 				ip.tp LIKE '%" . $escapedSearch . "%' OR
 				ip.net LIKE '%" . $escapedSearch . "%' OR
@@ -234,6 +234,46 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				return '<span class="label bg-grey">' . ucfirst($status) . '</span>';
 			};
 
+			// Helper function to format payment mode
+			$formatPaymentMode = function($r) {
+				$parts = array();
+				
+				// Agent payment part
+				$agentPaymentMode = trim($r['agent_payment_mode'] ?? '');
+				$agentAmount = isset($r['agent_amount']) && $r['agent_amount'] !== null && $r['agent_amount'] !== '' ? $r['agent_amount'] : null;
+				$agentChequeNo = trim($r['agent_chequeno'] ?? '');
+				
+				if (!empty($agentPaymentMode) && $agentAmount !== null) {
+					$agentPart = $agentPaymentMode;
+					if (strcasecmp($agentPaymentMode, 'Cheque') === 0 && !empty($agentChequeNo)) {
+						$agentPart .= ' (' . $agentChequeNo . ')';
+					}
+					$agentPart .= ' ' . $agentAmount;
+					$parts[] = $agentPart;
+				}
+				
+				// Company payment part
+				$companyPaymentMode = trim($r['company_payment_mode'] ?? '');
+				$companyAmount = isset($r['company_amount']) && $r['company_amount'] !== null && $r['company_amount'] !== '' ? $r['company_amount'] : null;
+				$companyChequeNo = trim($r['company_chequeno'] ?? '');
+				$companyIssuerName = trim($r['company_issuer_name'] ?? '');
+				
+				if (!empty($companyPaymentMode) && $companyAmount !== null) {
+					$companyPart = '';
+					if (!empty($companyIssuerName)) {
+						$companyPart .= $companyIssuerName . ' + ';
+					}
+					$companyPart .= $companyPaymentMode;
+					if (strcasecmp($companyPaymentMode, 'Cheque') === 0 && !empty($companyChequeNo)) {
+						$companyPart .= ' (' . $companyChequeNo . ')';
+					}
+					$companyPart .= ' ' . $companyAmount;
+					$parts[] = $companyPart;
+				}
+				
+				return !empty($parts) ? implode(' + ', $parts) : '';
+			};
+
 			$data = array();
 			foreach ($rows as $r) {
 				$actionHtml = '<a href="' . base_url('admin/insurance_policy/insurance_policy_form/e/' . ($r['id'] ?? '')) . '" class="btn btn-xs bg-blue waves-effect" title="Edit"><i class="material-icons">edit</i></a>';
@@ -260,7 +300,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 					$formatDate($r['end_date'] ?? ''),
 					$r['company_name'] ?? '',
 					$r['agent_code_name'] ?? '',
-					$r['payment_mode'] ?? '',
+					$formatPaymentMode($r),
 					$r['od'] ?? '',
 					$r['tp'] ?? '',
 					$r['net'] ?? '',
@@ -302,9 +342,17 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			
 			$data['staffs'] = $this->common_model->get_data_array('ins_staff');
 			$data['agents'] = $this->common_model->get_data_array('ins_agency');
-			$data['login_ids'] = $this->common_model->get_data_array('ins_loginid');
 			$data['agent_codes'] = $this->common_model->get_data_array('ins_agent_code');
 			$data['rto_companies'] = $this->common_model->get_data_array('ins_rto_company');
+
+			$data['login_ids'] = $this->db->query("
+				SELECT il.id, il.name, iac.name as agent_code_name
+				FROM ins_loginid il
+				LEFT JOIN ins_agent_code iac on il.agent_code_id = iac.id
+			")->result_array();
+
+			// echo "<pre>";print_r($data['login_ids']);exit();
+			
 			$data['view'] = 'insurance/insurance_policy_form';
 			$this->load->view('layout', $data);
 		}
@@ -339,13 +387,72 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			$allowed = array(
 				'policy_no','vehicle_no','customer_name','make','model','vehicle_type','rto_company_id',
 				'mfg_year','age','gvw','ncb','policy_type','start_date','end_date','company_name',
-				'agent_code_id','payment_mode','credit_card_id','od','tp','net','premium','reward','agent_id',
-				'login_id','file_path','company_grid','company_grid2','tds','staff_id','verified_status','status'
+				'agent_code_id','od','tp','net','premium','reward','agent_id',
+				'login_id','file_path','company_grid','company_grid2','tds','staff_id','verified_status','status',
+				'paid_type','agent_payment_mode','agent_amount','agent_chequeno',
+				'company_payment_mode','company_amount','company_credit_card_id','company_chequeno','company_issuer_name',
+				'received_account','received_date'
 			);
 			$update = array();
 			foreach ($allowed as $key) {
 				$val = $this->input->post($key);
-				if ($val !== null) $update[$key] = $val;
+				if ($val !== null) $update[$key] = $val;	
+			}
+			
+			$login_id_to_use = null;
+			if (isset($update['login_id']) && !empty($update['login_id'])) {
+				$login_id_to_use = $update['login_id'];
+			} else {
+				$existingRecord = $this->db->select('login_id')->get_where('insurance_policy', array('id' => $id, 'is_delete' => 0), 1)->row_array();
+				if ($existingRecord && !empty($existingRecord['login_id'])) {
+					$login_id_to_use = $existingRecord['login_id'];
+				}
+			}
+			
+			if (!empty($login_id_to_use)) {
+				$loginIdData = $this->loginid_model->get_loginid_by_id($login_id_to_use);
+				if ($loginIdData && isset($loginIdData['agent_code_id'])) {
+					$update['agent_code_id'] = $loginIdData['agent_code_id'];
+				}
+			}
+			if (isset($update['agent_chequeno'])) {
+				$update['agent_chequeno'] = trim((string)$update['agent_chequeno']);
+				if ($update['agent_chequeno'] === '') {
+					$update['agent_chequeno'] = null;
+				}
+			}
+			if (isset($update['company_chequeno'])) {
+				$update['company_chequeno'] = trim((string)$update['company_chequeno']);
+				if ($update['company_chequeno'] === '') {
+					$update['company_chequeno'] = null;
+				}
+			}
+			if (isset($update['company_issuer_name'])) {
+				$update['company_issuer_name'] = trim((string)$update['company_issuer_name']);
+				if ($update['company_issuer_name'] === '') {
+					$update['company_issuer_name'] = null;
+				}
+			}
+			if (isset($update['agent_payment_mode']) && strcasecmp((string)$update['agent_payment_mode'], 'Cheque') !== 0) {
+				$update['agent_chequeno'] = null;
+			} elseif (isset($update['agent_payment_mode']) && strcasecmp((string)$update['agent_payment_mode'], 'Cheque') === 0) {
+				if (empty($update['agent_chequeno'])) {
+					echo json_encode(array('status' => '0', 'message' => 'Agent cheque number is required when payment mode is Cheque'));
+					return;
+				}
+			}
+			if (isset($update['company_payment_mode']) && strcasecmp((string)$update['company_payment_mode'], 'Cheque') !== 0) {
+				$update['company_chequeno'] = null;
+				$update['company_issuer_name'] = null;
+			} elseif (isset($update['company_payment_mode']) && strcasecmp((string)$update['company_payment_mode'], 'Cheque') === 0) {
+				if (empty($update['company_chequeno'])) {
+					echo json_encode(array('status' => '0', 'message' => 'Company cheque number is required when payment mode is Cheque'));
+					return;
+				}
+				if (empty($update['company_issuer_name'])) {
+					echo json_encode(array('status' => '0', 'message' => 'Company issuer name is required when payment mode is Cheque'));
+					return;
+				}
 			}
 			if (empty($update)) {
 				echo json_encode(array('status' => '0', 'message' => 'Nothing to update'));
@@ -408,15 +515,34 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				}
 
 				// Get form data (dropdown values and other fields)
+				$login_id = $this->input->post('login_id');
+				$agent_code_id = null;
+				
+				// Fetch agent_code_id from ins_loginid table based on login_id
+				if (!empty($login_id)) {
+					$loginIdData = $this->loginid_model->get_loginid_by_id($login_id);
+					if ($loginIdData && isset($loginIdData['agent_code_id'])) {
+						$agent_code_id = $loginIdData['agent_code_id'];
+					}
+				}
+				
 				$formData = array(
 					'staff_id' => $this->input->post('staff_id'),
 					'agent_id' => $this->input->post('agent_id'),
-					'login_id' => $this->input->post('login_id'),
-					'agent_code_id' => $this->input->post('agent_code_id'),
-					'payment_mode' => $this->input->post('payment_mode'),
+					'login_id' => $login_id,
+					'agent_code_id' => $agent_code_id,
 					'paid_type' => $this->input->post('paid_type'),
-					'credit_card_id' => $this->input->post('credit_card_id'),
 					'rto_company_id' => $this->input->post('rto_company_id'),
+					'agent_payment_mode' => $this->input->post('agent_payment_mode'),
+					'agent_amount' => $this->input->post('agent_amount'),
+					'agent_chequeno' => $this->input->post('agent_chequeno'),
+					'company_payment_mode' => $this->input->post('company_payment_mode'),
+					'company_amount' => $this->input->post('company_amount'),
+					'company_credit_card_id' => $this->input->post('company_credit_card_id'),
+					'company_chequeno' => $this->input->post('company_chequeno'),
+					'company_issuer_name' => $this->input->post('company_issuer_name'),
+					'received_account' => $this->input->post('received_account'),
+					'received_date' => $this->input->post('received_date')
 				);
 
 				$file_count = count($_FILES['files']['name']);
@@ -616,14 +742,47 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			$login_id = !empty($formData['login_id']) ? $formData['login_id'] : null;
 			$agentId = !empty($formData['agent_id']) ? $formData['agent_id'] : null;
 			$agentCodeId = !empty($formData['agent_code_id']) ? $formData['agent_code_id'] : null;
-			$paymentMode = !empty($formData['payment_mode']) ? $formData['payment_mode'] : null;
-			$creditCardId = !empty($formData['credit_card_id']) ? $formData['credit_card_id'] : null;
+
+			$agentPaymentMode = !empty($formData['agent_payment_mode']) ? $formData['agent_payment_mode'] : null;
+			$companyPaymentMode = !empty($formData['company_payment_mode']) ? $formData['company_payment_mode'] : null;
+			$agentAmount = (isset($formData['agent_amount']) && $formData['agent_amount'] !== '') ? $toNum($formData['agent_amount']) : null;
+			$companyAmount = (isset($formData['company_amount']) && $formData['company_amount'] !== '') ? $toNum($formData['company_amount']) : null;
+			$paidType = !empty($formData['paid_type']) ? $formData['paid_type'] : null;
+			if ($paidType === 'agent_paid') {
+				if ($agentAmount === null) {
+					$agentAmount = $toNum($get('agent_paid'));
+				}
+			} else if ($paidType === 'company_paid') {
+				if ($companyAmount === null) {
+					$companyAmount = $toNum($get('company_paid'));
+				}
+			} else if ($paidType === 'agent_company_paid') {
+				if ($agentAmount === null) {
+					$agentAmount = $toNum($get('agent_paid'));
+				}
+				if ($companyAmount === null) {
+					$companyAmount = $toNum($get('company_paid'));
+				}
+			}
+			$receivedAccount = isset($formData['received_account']) ? $formData['received_account'] : null;
+			$receivedDate = !empty($formData['received_date']) ? $toDate($formData['received_date']) : null;
+			$agentChequeNo = isset($formData['agent_chequeno']) ? trim($formData['agent_chequeno']) : null;
+			if ($agentChequeNo === '') { $agentChequeNo = null; }
+			$companyCreditCardId = !empty($formData['company_credit_card_id']) ? $formData['company_credit_card_id'] : null;
+			$companyChequeNo = isset($formData['company_chequeno']) ? trim($formData['company_chequeno']) : null;
+			if ($companyChequeNo === '') { $companyChequeNo = null; }
+			$companyIssuerName = isset($formData['company_issuer_name']) ? trim($formData['company_issuer_name']) : null;
+			if ($companyIssuerName === '') { $companyIssuerName = null; }
 			
 			$loginIdData = $this->loginid_model->get_loginid_by_id($login_id);
 			if ($loginIdData) {
 				$rtoCompanyId = $loginIdData['rto_company_id'];
 				$companyGrid = $loginIdData['net_premium'];
 				$reward = $loginIdData['agent_netpremium'];
+				// Use agent_code_id from loginIdData if not already set in formData
+				if (empty($agentCodeId) && isset($loginIdData['agent_code_id'])) {
+					$agentCodeId = $loginIdData['agent_code_id'];
+				}
 			} else {
 				$rtoCompanyId = null;
 				$companyGrid = null;
@@ -634,7 +793,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			$od = $toNum($get('total_od_premium'));
 			$tp = $toNum($get('total_tp_premium'));
 			$net = $toNum($get('net_premium'));
-			if ($net !== null ) {
+			if ($net) {
 				$net = $net;
 			} else {
 				$net = $od + $tp;
@@ -657,15 +816,23 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				'end_date' => $toDate($get('end_date')),
 				'company_name' => $company_name,
 				'agent_code_id' => $agentCodeId,
-				'payment_mode' => $paymentMode,
-				'credit_card_id' => $creditCardId,
+				'paid_type' => $paidType,
+				'agent_payment_mode' => $agentPaymentMode,
+				'agent_chequeno' => ($agentPaymentMode === 'Cheque') ? $agentChequeNo : null,
 				'od' => $od,
 				'tp' => $tp,
 				'net' => $net,
 				'premium' => $toNum($get('gross_premium')),
+				'agent_amount' => $agentAmount,
+				'company_amount' => $companyAmount,
+				'company_credit_card_id' => $companyCreditCardId,
+				'company_chequeno' => ($companyPaymentMode === 'Cheque') ? $companyChequeNo : null,
+				'company_issuer_name' => ($companyPaymentMode === 'Cheque') ? $companyIssuerName : null,
+				'received_account' => $receivedAccount,
+				'received_date' => $receivedDate,
+				'company_payment_mode' => $companyPaymentMode,
 				'reward' => $reward,
 				'agent_id' => $agentId,
-				'login_id' => $login_id,
 				'file_path' => null,
 				'company_grid' => $companyGrid,
 				'company_grid2' => null,

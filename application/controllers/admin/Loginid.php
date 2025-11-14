@@ -37,8 +37,8 @@
 			$data['rto_companies'] = $this->master_model->active_rto_company_list();
 			// Option lists for new fields
 			$data['vehicle_types'] = ['Gcv','Pcv','School Bus','Staff Bus','Tractor','Misc-D','Car','2W','T-Taxi'];
-			$data['fuel_types'] = ['Petrol','Diesel','Electric','Lpg','Cng'];
-			$data['policy_types'] = ['Package','Od','Tp'];
+			$data['fuel_types'] = ['All','Petrol','Diesel','Electric','Lpg','Cng'];
+			$data['policy_types'] = ['Package','OD','TP', 'Package & TP'];
 			$data['code_types'] = ['Broking','Individual'];	
 			$data['agent_code'] = $this->common_model->get_data_array('ins_agent_code');
 			$data['view'] = 'insurance/loginid_form';
@@ -108,7 +108,7 @@
 				4 => 'il.vehicle_type',
 				5 => 'il.fuel_type',
 				6 => 'il.policy_type',
-				7 => 'il.seating_capacity',
+				7 => 'il.seating_capacity_from',
 				8 => 'il.agent_code',
 				9 => 'il.vehicle_make',
 				10 => 'il.vehicle_model',
@@ -130,9 +130,10 @@
 			$dir = $requestData['order'][0]['dir'];
 			$search = $requestData['search']['value'];
 		
-			$sql = "SELECT il.*, irc.name AS rto_company_name, DATE_FORMAT(il.updated_date, '%d/%m/%Y %h:%i') AS formated_updated_date
+			$sql = "SELECT il.*, irc.name AS rto_company_name, iac.name AS agent_code_name, DATE_FORMAT(il.updated_date, '%d/%m/%Y %h:%i') AS formated_updated_date
 					FROM ins_loginid il
 					LEFT JOIN ins_rto_company irc ON irc.id = il.rto_company_id
+					LEFT JOIN ins_agent_code iac ON iac.id = il.agent_code_id
 					LEFT JOIN ins_insurance_company iic ON iic.id = irc.inscompany_id";
 			$clone_sql = $sql;
 			$fetch_tot_data = $this->db->query($clone_sql);
@@ -147,8 +148,8 @@
 							OR il.vehicle_type LIKE '%$search%'
 							OR il.fuel_type LIKE '%$search%'
 							OR il.policy_type LIKE '%$search%'
-							OR il.seating_capacity LIKE '%$search%'
-							OR il.agent_code LIKE '%$search%'
+							OR il.seating_capacity_from LIKE '%$search%'
+							OR iac.name LIKE '%$search%'
 							OR il.vehicle_make LIKE '%$search%'
 							OR il.vehicle_model LIKE '%$search%'
 							OR il.od_premium LIKE '%$search%' 
@@ -202,8 +203,11 @@
 					isset($row->vehicle_type) ? $row->vehicle_type : '',
 					isset($row->fuel_type) ? $row->fuel_type : '',
 					isset($row->policy_type) ? $row->policy_type : '',
-					isset($row->seating_capacity) ? $row->seating_capacity : '',
-					isset($row->agent_code) ? $row->agent_code : '',
+					(isset($row->seating_capacity_from) && isset($row->seating_capacity_to) && 
+						$row->seating_capacity_from > 0 && $row->seating_capacity_to > 0)
+						? "{$row->seating_capacity_from} - {$row->seating_capacity_to}"
+						: "",
+					isset($row->agent_code_name) ? $row->agent_code_name : '',
 					isset($row->vehicle_make) ? $row->vehicle_make : '',
 					isset($row->vehicle_model) ? $row->vehicle_model : '',
 					$row->od_premium." %",

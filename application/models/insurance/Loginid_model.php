@@ -46,9 +46,8 @@
 		public function log_loginid_changes($loginid_id, $old_data, $new_data, $updated_by) {
 		// Only log these fields
 		$track_fields = [
-			'name', 'od_premium', 'tp_premium', 'net_premium',
-			'agent_odpremium', 'agent_tppremium', 'agent_netpremium',
-			'rto_company_id',
+			'name', 'od_premium', 'tp_premium', 'net_premium', 'agent_odpremium',
+			'agent_tppremium', 'agent_netpremium', 'rto_company_id',
 			'vehicle_type', 'fuel_type', 'policy_type', 'seating_capacity',
 			'code_type', 'code_name', 'vehicle_make', 'vehicle_model',
 			'status'

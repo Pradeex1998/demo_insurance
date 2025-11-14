@@ -383,7 +383,8 @@ COMPANY_PROMPTS = {
 
 
 def call_gemini(prompt, retries=7, delay=10):
-    client = genai.Client(api_key="AIzaSyCNIiP32rH3swQ0XFj0MbtBEvBP9cElY10")
+    client = genai.Client(api_key="AIzaSyCNIiP32rH3swQ0XFj0MbtBEvBP9cElY10") #old key
+    # client = genai.Client(api_key="AIzaSyCmHs-ohLfh3kDLVV6DFCtWRZOZg8fT33k") #new key
     chat = client.chats.create(model="gemini-2.0-flash")
     
     full_prompt = (
@@ -397,9 +398,14 @@ def call_gemini(prompt, retries=7, delay=10):
             response = chat.send_message(full_prompt)
             return response.text
         except Exception as e:
-            if "503" in str(e):
-                sys.stderr.write(f"Model overloaded. Retrying in {delay} seconds... ({attempt+1}/{retries})\n")
-                time.sleep(delay)
+            error_text = str(e)
+            retriable = any(code in error_text for code in ("503", "429", "RESOURCE_EXHAUSTED"))
+            if retriable:
+                sys.stderr.write(
+                    f"Model unavailable ({error_text}). Retrying in {delay} seconds... "
+                    f"({attempt+1}/{retries})\n"
+                )
+                time.sleep(delay * (attempt + 1))
             else:
                 raise e
     return json.dumps({"status": "error", "message": "Model unavailable after retries."})

@@ -30,178 +30,169 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 		/**
 		 * Datatable JSON for insurance_policy in the exact requested column order.
 		 */
-	public function insurance_policy_list_json() {
-		$this->output->set_content_type('application/json');
-		$draw  = intval($this->input->post('draw')) ?: 1;
-		$start = intval($this->input->post('start')) ?: 0;
-		$length = intval($this->input->post('length')) ?: 10;
-		$search = $this->input->post('search')['value'] ?? '';
-		$columns = $this->input->post('columns') ?? [];
-		$order = $this->input->post('order') ?? [];
-
-		// Column mapping: DataTable column index => database column
-		$columnMap = [
-			0 => 'ip.id',
-			1 => 'ip.created_at',
-			2 => 'ip.policy_no',
-			3 => 'ip.vehicle_no',
-			4 => 'ip.customer_name',
-			5 => 'ip.make',
-			6 => 'ip.model',
-			7 => 'ip.vehicle_type',
-			8 => 'irc.name',
-			9 => 'ip.mfg_year',
-			10 => 'ip.age',
-			11 => 'ip.gvw',
-			12 => 'ip.ncb',
-			13 => 'ip.policy_type',
-			14 => 'ip.start_date',
-			15 => 'ip.end_date',
-			16 => 'ip.company_name',
-			17 => 'iac.name',
-			18 => 'ip.name',
-			19 => 'ip.od',
-			20 => 'ip.tp',
-			21 => 'ip.net',
-			22 => 'ip.premium',
-			23 => 'ip.reward',
-			24 => 'ia.name',
-			25 => 'ia.mobile_no',
-			26 => 'ip.company_grid',
-			27 => 'ip.company_grid2',
-			28 => 'ip.tds',
-			29 => 'ist.name',
-			30 => 'ip.verified_status',
-			31 => 'ip.status',
-			32 => 'cu1.name',
-			33 => 'cu2.name',
-			34 => 'ip.created_at',
-			35 => 'ip.updated_at'
-		];
-
-		// Get datepicker filter
-		$datepicker = $this->input->post('datepicker') ?? '';
-		
-		// Build WHERE clause conditions array
-		$whereConditions = array("ip.is_delete = 0");
-		
-		// Datepicker filtering
-		if (!empty($datepicker)) {
-			$dates = explode(' - ', $datepicker);
-			if (count($dates) == 2) {
-				$startDate = DateTime::createFromFormat('d/m/Y', trim($dates[0]));
-				$endDate = DateTime::createFromFormat('d/m/Y', trim($dates[1]));
-				if ($startDate && $endDate) {
-					$startDatetime = $startDate->setTime(0, 0, 0)->format('Y-m-d H:i:s');
-					$endDatetime = $endDate->setTime(23, 59, 59)->format('Y-m-d H:i:s');
-					$whereConditions[] = "ip.created_at BETWEEN '" . $this->db->escape_str($startDatetime) . "' AND '" . $this->db->escape_str($endDatetime) . "'";
+		public function insurance_policy_list_json() {
+			$this->output->set_content_type('application/json');
+			
+			$requestData = $_POST;
+			$draw = intval($requestData['draw']) ?: 1;
+			$start = intval($requestData['start']) ?: 0;
+			$length = intval($requestData['length']) ?: 10;
+			$search = trim($requestData['search']['value'] ?? '');
+			$datepicker = $requestData['datepicker'] ?? '';
+			
+			$columns = [
+				0 => 'ip.id',
+				1 => 'ip.created_at',
+				2 => 'ip.policy_no',
+				3 => 'ip.vehicle_no',
+				4 => 'ip.customer_name',
+				5 => 'ip.make',
+				6 => 'ip.model',
+				7 => 'ip.vehicle_type',
+				8 => 'irc.name',
+				9 => 'ip.mfg_year',
+				10 => 'ip.age',
+				11 => 'ip.gvw',
+				12 => 'ip.ncb',
+				13 => 'ip.policy_type',
+				14 => 'ip.start_date',
+				15 => 'ip.end_date',
+				16 => 'ip.company_name',
+				17 => 'iac.name',
+				18 => 'ip.customer_name',
+				19 => 'ip.od',
+				20 => 'ip.tp',
+				21 => 'ip.net',
+				22 => 'ip.premium',
+				23 => 'ip.reward',
+				24 => 'ia.name',
+				25 => 'ia.mobile_no',
+				26 => 'ip.company_grid',
+				27 => 'ip.company_grid2',
+				28 => 'ip.tds',
+				29 => 'ist.name',
+				30 => 'ip.verified_status',
+				31 => 'ip.status',
+				32 => 'cu1.name',
+				33 => 'cu2.name',
+				34 => 'ip.created_at',
+				35 => 'ip.updated_at'
+			];
+			
+			$order_column_index = $requestData['order'][0]['column'] ?? 0;
+			$order = $columns[$order_column_index] ?? 'ip.created_at';
+			$dir = $requestData['order'][0]['dir'] ?? 'DESC';
+			
+			$where_conditions = [];
+			
+			if (!empty($datepicker)) {
+				$dates = explode(' - ', $datepicker);
+				if (count($dates) == 2) {
+					$startDate = DateTime::createFromFormat('d/m/Y', trim($dates[0]));
+					$endDate = DateTime::createFromFormat('d/m/Y', trim($dates[1]));
+					if ($startDate && $endDate) {
+						$startDatetime = $startDate->setTime(0, 0, 0)->format('Y-m-d H:i:s');
+						$endDatetime = $endDate->setTime(23, 59, 59)->format('Y-m-d H:i:s');
+						$where_conditions[] = "ip.created_at BETWEEN '" . $this->db->escape_str($startDatetime) . "' AND '" . $this->db->escape_str($endDatetime) . "'";
+					}
 				}
 			}
-		}
-		
-		if (!empty($search)) {
-			$escapedSearch = $this->db->escape_like_str($search);
-			$searchCondition = "(
-				ip.id LIKE '%" . $escapedSearch . "%' OR
-				ip.created_at LIKE '%" . $escapedSearch . "%' OR
-				ip.policy_no LIKE '%" . $escapedSearch . "%' OR
-				ip.vehicle_no LIKE '%" . $escapedSearch . "%' OR
-				ip.customer_name LIKE '%" . $escapedSearch . "%' OR
-				ip.make LIKE '%" . $escapedSearch . "%' OR
-				ip.model LIKE '%" . $escapedSearch . "%' OR
-				ip.vehicle_type LIKE '%" . $escapedSearch . "%' OR
-				irc.name LIKE '%" . $escapedSearch . "%' OR
-				ip.mfg_year LIKE '%" . $escapedSearch . "%' OR
-				ip.age LIKE '%" . $escapedSearch . "%' OR
-				ip.gvw LIKE '%" . $escapedSearch . "%' OR
-				ip.ncb LIKE '%" . $escapedSearch . "%' OR
-				ip.policy_type LIKE '%" . $escapedSearch . "%' OR
-				ip.start_date LIKE '%" . $escapedSearch . "%' OR
-				ip.end_date LIKE '%" . $escapedSearch . "%' OR
-				ip.company_name LIKE '%" . $escapedSearch . "%' OR
-				iac.name LIKE '%" . $escapedSearch . "%' OR
-				ip.name LIKE '%" . $escapedSearch . "%' OR
-				ip.od LIKE '%" . $escapedSearch . "%' OR
-				ip.tp LIKE '%" . $escapedSearch . "%' OR
-				ip.net LIKE '%" . $escapedSearch . "%' OR
-				ip.premium LIKE '%" . $escapedSearch . "%' OR
-				ip.reward LIKE '%" . $escapedSearch . "%' OR
-				ia.name LIKE '%" . $escapedSearch . "%' OR
-				ia.mobile_no LIKE '%" . $escapedSearch . "%' OR
-				ip.company_grid LIKE '%" . $escapedSearch . "%' OR
-				ip.company_grid2 LIKE '%" . $escapedSearch . "%' OR
-				ip.tds LIKE '%" . $escapedSearch . "%' OR
-				ist.name LIKE '%" . $escapedSearch . "%' OR
-				ip.verified_status LIKE '%" . $escapedSearch . "%' OR
-				ip.status LIKE '%" . $escapedSearch . "%' OR
-				cu1.name LIKE '%" . $escapedSearch . "%' OR
-				cu2.name LIKE '%" . $escapedSearch . "%' OR
-				ip.updated_at LIKE '%" . $escapedSearch . "%'
-			)";
-			$whereConditions[] = $searchCondition;
-		}
-		
-		// Build final WHERE clause
-		$whereClause = "";
-		if (!empty($whereConditions)) {
-			$whereClause = " WHERE " . implode(" AND ", $whereConditions);
-		}
-
-		// Build ORDER BY clause
-		$orderBy = "ORDER BY ip.created_at DESC";
-		if (!empty($order) && isset($order[0])) {
-			$orderColumnIndex = intval($order[0]['column']);
-			$orderDir = strtoupper($order[0]['dir']) === 'ASC' ? 'ASC' : 'DESC';
 			
-			if (isset($columnMap[$orderColumnIndex])) {
-				$orderBy = "ORDER BY " . $columnMap[$orderColumnIndex] . " " . $orderDir;
+			$search_condition = '';
+			if (!empty($search)) {
+				$searchEsc = $this->db->escape_like_str($search);
+				$concatExpression = "CONCAT_WS(' | ',
+					CAST(ip.id AS CHAR),
+					IFNULL(DATE_FORMAT(ip.created_at, '%d-%m-%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.created_at, '%d/%m/%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.created_at, '%Y-%m-%d'), ''),
+					IFNULL(DATE_FORMAT(ip.created_at, '%d-%m-%Y %h:%i %p'), ''),
+					IFNULL(DATE_FORMAT(ip.created_at, '%d/%m/%Y %h:%i %p'), ''),
+					COALESCE(ip.policy_no, ''),
+					COALESCE(ip.vehicle_no, ''),
+					COALESCE(ip.customer_name, ''),
+					COALESCE(ip.make, ''),
+					COALESCE(ip.model, ''),
+					COALESCE(ip.vehicle_type, ''),
+					COALESCE(irc.name, ''),
+					COALESCE(ip.mfg_year, ''),
+					CAST(COALESCE(ip.age, 0) AS CHAR),
+					CAST(COALESCE(ip.gvw, 0) AS CHAR),
+					COALESCE(ip.ncb, ''),
+					COALESCE(ip.policy_type, ''),
+					IFNULL(DATE_FORMAT(ip.start_date, '%d-%m-%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.start_date, '%Y-%m-%d'), ''),
+					IFNULL(DATE_FORMAT(ip.end_date, '%d-%m-%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.end_date, '%Y-%m-%d'), ''),
+					COALESCE(ip.company_name, ''),
+					COALESCE(iac.name, ''),
+					COALESCE(ip.customer_name, ''),
+					CAST(COALESCE(ip.od, 0) AS CHAR),
+					CAST(COALESCE(ip.tp, 0) AS CHAR),
+					CAST(COALESCE(ip.net, 0) AS CHAR),
+					CAST(COALESCE(ip.premium, 0) AS CHAR),
+					CAST(COALESCE(ip.reward, 0) AS CHAR),
+					COALESCE(ia.name, ''),
+					COALESCE(ia.mobile_no, ''),
+					CAST(COALESCE(ip.company_grid, '') AS CHAR),
+					CAST(COALESCE(ip.company_grid2, '') AS CHAR),
+					CAST(COALESCE(ip.tds, '') AS CHAR),
+					COALESCE(ist.name, ''),
+					COALESCE(ip.verified_status, ''),
+					COALESCE(ip.status, ''),
+					COALESCE(cu1.name, ''),
+					COALESCE(cu2.name, ''),
+					COALESCE(il.name, ''),
+					IFNULL(DATE_FORMAT(ip.updated_at, '%d-%m-%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.updated_at, '%d/%m/%Y'), ''),
+					IFNULL(DATE_FORMAT(ip.updated_at, '%Y-%m-%d'), ''),
+					IFNULL(DATE_FORMAT(ip.updated_at, '%d-%m-%Y %h:%i %p'), ''),
+					IFNULL(DATE_FORMAT(ip.updated_at, '%d/%m/%Y %h:%i %p'), '')
+				)";
+				$search_condition = "AND (" . $concatExpression . " LIKE '%{$searchEsc}%')";
 			}
-		}
+			
+			$where_clause = '';
+			if (!empty($where_conditions)) {
+				$where_clause = 'AND ' . implode(' AND ', $where_conditions);
+			}
+			
+			$sql = "SELECT 
+					ip.*,
+					irc.name AS rto_company_name,
+					iac.name AS agent_code_name,
+					cu1.name AS created_by_name,
+					cu2.name AS updated_by_name,
+					ist.name AS staff_name,
+					ia.name AS agent_name,
+					ia.mobile_no AS agent_mobile_no,
+					il.name AS login_name
+				FROM insurance_policy ip
+				LEFT JOIN ins_rto_company irc ON ip.rto_company_id = irc.id
+				LEFT JOIN ins_agent_code iac ON ip.agent_code_id = iac.id
+				LEFT JOIN ci_users cu1 ON ip.created_by = cu1.id
+				LEFT JOIN ci_users cu2 ON ip.updated_by = cu2.id
+				LEFT JOIN ins_staff ist ON ip.staff_id = ist.id
+				LEFT JOIN ins_agency ia ON ip.agent_id = ia.id
+				LEFT JOIN ins_loginid il ON ip.login_id = il.id
+				WHERE ip.is_delete = 0
+					$where_clause
+					$search_condition
+				ORDER BY $order $dir";
+			
+			// echo "<pre>";print_r($sql);exit();
+			$query_filtered = $this->db->query($sql);
+			$totalFiltered = $query_filtered->num_rows();
+			
+			$totalQuery = $this->db->query("SELECT COUNT(*) AS cnt FROM insurance_policy WHERE is_delete = 0");
+			$total = $totalQuery->row()->cnt;
+			
+			if ($length != -1) {
+				$sql .= " LIMIT $start, $length";
+			}
+			$query = $this->db->query($sql);
+			$rows = $query->result_array();
 
-		// Count total records
-		$totalQuery = $this->db->query("SELECT COUNT(*) AS cnt FROM insurance_policy WHERE is_delete = 0");
-		$total = (int)$totalQuery->row()->cnt;
-
-		// Get filtered count using raw query
-		$filteredSql = "SELECT COUNT(DISTINCT ip.id) AS cnt
-			FROM insurance_policy ip
-			LEFT JOIN ins_rto_company irc ON ip.rto_company_id = irc.id
-			LEFT JOIN ins_agent_code iac ON ip.agent_code_id = iac.id
-			LEFT JOIN ci_users cu1 ON ip.created_by = cu1.id
-			LEFT JOIN ci_users cu2 ON ip.updated_by = cu2.id
-			LEFT JOIN ins_staff ist ON ip.staff_id = ist.id
-			LEFT JOIN ins_agency ia ON ip.agent_id = ia.id
-			" . $whereClause;
-		
-		$filteredQuery = $this->db->query($filteredSql);
-		$filtered = (int)$filteredQuery->row()->cnt;
-
-		// Build main data query using raw SQL
-		$dataSql = "SELECT ip.*,
-			irc.name AS rto_company_name,
-			iac.name AS agent_code_name,
-			cu1.name AS created_by_name,
-			cu2.name AS updated_by_name,
-			ist.name AS staff_name,
-			ia.name AS agent_name,
-			ia.mobile_no AS agent_mobile_no,
-			il.name AS login_name
-			FROM insurance_policy ip
-			LEFT JOIN ins_rto_company irc ON ip.rto_company_id = irc.id
-			LEFT JOIN ins_agent_code iac ON ip.agent_code_id = iac.id
-			LEFT JOIN ci_users cu1 ON ip.created_by = cu1.id
-			LEFT JOIN ci_users cu2 ON ip.updated_by = cu2.id
-			LEFT JOIN ins_staff ist ON ip.staff_id = ist.id
-			LEFT JOIN ins_agency ia ON ip.agent_id = ia.id
-			LEFT JOIN ins_loginid il ON ip.login_id = il.id
-			" . $whereClause . "
-			" . $orderBy . "
-			LIMIT " . (int)$start . ", " . (int)$length;
-		
-		$q = $this->db->query($dataSql);
-		$rows = $q->result_array();
-
-			// Helper function to format date
 			$formatDate = function($date) {
 				if (empty($date) || $date === '0000-00-00' || $date === '0000-00-00 00:00:00') {
 					return '';
@@ -210,7 +201,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 				return $timestamp ? date('d-m-Y', $timestamp) : '';
 			};
 
-			// Helper function to format status with color
 			$formatStatus = function($status) {
 				$status = strtolower(trim($status ?? ''));
 				if ($status === 'active' || $status === '1') {
@@ -275,14 +265,16 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 			};
 
 			$data = array();
+			$index = $start + 1;
 			foreach ($rows as $r) {
 				$actionHtml = '<a href="' . base_url('admin/insurance_policy/insurance_policy_form/e/' . ($r['id'] ?? '')) . '" class="btn btn-xs bg-blue waves-effect" title="Edit"><i class="material-icons">edit</i></a>';
 				$policyLink = $r['id']
 					? '<a href="' . base_url('admin/insurance_policy/insurance_policy_form/v/' . $r['id']) . '" class="policy-view-link">' . ($r['policy_no'] ?? '') . '</a>'
 					: ($r['policy_no'] ?? '');
 				$rtoCombined = trim(($r['rto_company_name'] ?? '') . ' / ' . ($r['login_name'] ?? ''));
+				
 				$data[] = array(
-					count($data) + 1,
+					$index,
 					$formatDate($r['created_at'] ?? ''),
 					$policyLink,
 					$r['vehicle_no'] ?? '',
@@ -320,14 +312,18 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 					isset($r['updated_at']) && $r['updated_at'] ? date('d/m/Y h:i A', strtotime($r['updated_at'])) : '',
 					$actionHtml
 				);
+				$index++;
 			}
 
-			echo json_encode(array(
-				'draw' => $draw,
-				'recordsTotal' => $total,
-				'recordsFiltered' => $filtered,
-				'data' => $data
-			));
+			// Returning JSON data
+			$json_data = array(
+				"draw" => $draw,
+				"recordsTotal" => $total,
+				"recordsFiltered" => $totalFiltered,
+				"data" => $data
+			);
+		
+			echo json_encode($json_data);
 		}
 
 		/**
